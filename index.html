@@ -630,10 +630,7 @@
 
     const ELEMENT_KEYS = ['H', 'C', 'Si', 'N', 'P', 'O', 'S', 'F', 'Cl', 'Br', 'I'];
 
-    // Parelles que formen xarxes cristal·lines covalents 3D
     const NETWORK_PAIRS = new Set(['C-C', 'Si-Si', 'C-Si', 'Si-C', 'Si-O', 'O-Si']);
-
-    // Parelles que no formen molècules covalents binàries simples d'octet a 3r d'ESO
     const EXCLUDED_PAIRS = new Set([
       'C-N', 'N-C', 'C-P', 'P-C', 'C-S', 'S-C',
       'Si-N', 'N-Si', 'Si-P', 'P-Si', 'Si-S', 'S-Si'
@@ -649,8 +646,8 @@
     ];
 
     let state = {
-      el1: 'N',
-      el2: 'H',
+      el1: 'O',
+      el2: 'O',
       step: 1,
       prevStep: 1,
       rotX: 0.35,
@@ -671,12 +668,6 @@
       return (a * b) / gcd(a, b);
     }
 
-    /**
-     * Comprova si la parella d'elements és didàcticament vàlida per a 3r d'ESO:
-     * - O bé forma una xarxa covalent atòmica clàssica (C, Si, SiC, SiO2)
-     * - O bé és una molècula homonuclear diatòmica (sym1 === sym2)
-     * - O bé en la molècula resultant almenys un dels elements intervé UNA ÚNICA VEGADA (min(n1, n2) === 1)
-     */
     function isValidPair(sym1, sym2) {
       const pairKey = `${sym1}-${sym2}`;
       if (EXCLUDED_PAIRS.has(pairKey)) return false;
@@ -692,10 +683,6 @@
       return Math.min(n1, n2) === 1;
     }
 
-    /**
-     * Formata la fórmula binària seguint l'ordre oficial de la IUPAC (Taula VI):
-     * Si -> C -> P -> N -> H -> S -> I -> Br -> Cl -> O -> F
-     */
     function formatIupacFormula(elA, countA, elB, countB) {
       let first = elA, c1 = countA, second = elB, c2 = countB;
       if (elA.iupacRank > elB.iupacRank) {
@@ -708,9 +695,6 @@
       return { formulaLatex, formulaPlain };
     }
 
-    /**
-     * Analitza la parella d'elements i determina l'estequiometria exacta, l'estructura de Lewis i la geometria 3D
-     */
     function analyzeSubstance(sym1, sym2) {
       const e1 = NONMETALS[sym1];
       const e2 = NONMETALS[sym2];
@@ -1084,12 +1068,12 @@
         const rule1 = e1.target === 2 ? 'duet (2 e⁻)' : 'octet (8 e⁻)';
         const rule2 = e2.target === 2 ? 'duet (2 e⁻)' : 'octet (8 e⁻)';
         titleEl.textContent = `Fase 2: Quants electrons necessita cada àtom?`;
-        descEl.innerHTML = `Al <strong>${e1.name}</strong> li falten <strong>${e1.needed} ${e1.needed === 1 ? 'electró' : 'electrons'}</strong> per completar el seu ${rule1}, i al <strong>${e2.name}</strong> li'n falten <strong>${e2.needed}</strong> per assolir el seu ${rule2} (marcats amb cercles discontinus).`;
+        descEl.innerHTML = `Al <strong>${e1.name}</strong> li falten <strong>${e1.needed} ${e1.needed === 1 ? 'electró' : 'electrons'}</strong> per completar el seu ${rule1}, i al <strong>${e2.name}</strong> li'n falten <strong>${e2.needed}</strong> per assolir el seu ${rule2} (marcats amb cercles discontinus aparellats).`;
       } else if (s === 3) {
         titleEl.textContent = `Fase 3: Ajust estequiomètric (proporció d'àtoms)`;
         if (sub.isNetwork) {
           if (sub.networkKind === 'silica') {
-            descEl.innerHTML = `Cada àtom de <strong>Silici</strong> (${mInline('\\text{Si}')}) necessita compartir <strong>4 electrons</strong> i cada <strong>Oxigen</strong> (${mInline('\\text{O}')}) en comparteix <strong>2</strong> (un amb cada ${mInline('\\text{Si}')} veí). Forma una <strong>xarxa infinita</strong> de proporció 1:2 (${mInline('\\text{SiO}_2')}).`;
+            descEl.innerHTML = `Cada àtom de <strong>Silici</strong> (${mInline('\\text{Si}')}) necessita compartir <strong>4 electrons</strong> i cada <strong>Oxigen</strong> (${mInline('\\text{O}')}) en comparteix <strong>2</strong> (un amb cada ${mInline('\\text{Si}')} veí). Forma una <strong>xarxa infinita</strong> de proporció ${mInline('1 : 4\\times\\frac{1}{2} = \\text{SiO}_2')}.`;
           } else {
             descEl.innerHTML = `Tant el ${mInline(`\\text{${e1.symbol}}`)} com el ${mInline(`\\text{${e2.symbol}}`)} formen <strong>4 enllaços covalents simples</strong> en les tres direccions de l'espai, generant una <strong>xarxa cristal·lina covalent</strong> gegant.`;
           }
@@ -1102,9 +1086,14 @@
         titleEl.textContent = sub.isNetwork
           ? `Fase 4: Compartició d'electrons al node de la xarxa covalent`
           : `Fase 4: Compartició de parells d'electrons (${sub.formulaPlain})`;
-        descEl.innerHTML = sub.isNetwork
-          ? `Cada parell compartit (un punt • i una creu ×) forma un enllaç covalent simple. Els àtoms exteriors conserven electrons per continuar enllaçant-se indefinidament amb la resta del cristall.`
-          : `Els àtoms s'acosten i comparteixen parells d'electrons (un punt • i una creu × a cada parell), completant tots el seu octet (o duet per a l'Hidrogen) dins de la molècula ${mInline(sub.formulaLatex)}.`;
+        if (sub.isNetwork) {
+          descEl.innerHTML = sub.networkKind === 'silica'
+            ? `Cada parell compartit (un punt • i una creu × ben diferenciats) forma un enllaç covalent simple. Cada ${mInline('\\text{Si}')} s'uneix a 4 ${mInline('\\text{O}')}, però cada ${mInline('\\text{O}')} és compartit per dos ${mInline('\\text{Si}')} veïns (${mInline('4\\times\\frac{1}{2}=2')}), donant la fórmula global ${mInline('\\text{SiO}_2')}.`
+            : `Cada parell compartit (un punt • i una creu × ben diferenciats) forma un enllaç covalent simple. Els àtoms exteriors conserven electrons per continuar enllaçant-se indefinidament amb la resta del cristall.`;
+        } else {
+          const sharedTotal = sub.bondOrder * 2;
+          descEl.innerHTML = `Els àtoms s'acosten i comparteixen <strong>${sub.bondOrder} ${sub.bondOrder === 1 ? 'parell' : 'parells'} d'electrons</strong> (${sharedTotal} electrons en total, amb els punts • i les creus × ben separats), completant tots el seu octet (o duet per a l'Hidrogen) dins de ${mInline(sub.formulaLatex)}.`;
+        }
       } else if (s === 5) {
         titleEl.textContent = sub.isNetwork
           ? `Fase 5: Unitat estructural de Lewis de la xarxa (punts/creus i guionets)`
@@ -1185,7 +1174,7 @@
 
     function drawVacancyMark(parent, x, y, scale = 1) {
       parent.appendChild(createSVG('circle', {
-        cx: x, cy: y, r: 5.4 * scale,
+        cx: x, cy: y, r: 5.2 * scale,
         fill: 'rgba(239, 68, 68, 0.12)',
         stroke: 'var(--vacancy-stroke)',
         'stroke-width': 1.7,
@@ -1194,6 +1183,10 @@
       }));
     }
 
+    /**
+     * Dibuixa l'àtom aïllat de Lewis.
+     * Les vacants queden aparellades en la mateixa vertical/horitzontal amb el seu electró desaparellat.
+     */
     function drawIsolatedLewisAtom(parent, opts) {
       const { symbol, valence, target, cx, cy, isDot, color, showVacancies, sidesOrder, scale = 1 } = opts;
       const g = createSVG('g', {});
@@ -1288,7 +1281,7 @@
         return;
       }
 
-      // FASES 3 i 4: Acoblament (molècula amb 1 àtom central o node de xarxa covalent)
+      // FASES 3 i 4: Acoblament sense cap solapament entre punts i creus
       if (s === 3 || s === 4) {
         const shouldAnimate = (s === 4 && state.prevStep < 4);
         const renderFrame = (t, showVac) => {
@@ -1314,7 +1307,7 @@
         return;
       }
 
-      // FASE 5: Diagrames de Lewis resultants (punts/creus vs guionets)
+      // FASE 5: Diagrames de Lewis resultants
       if (s === 5) {
         drawDualLewisDiagrams(svg, sub);
         return;
@@ -1352,6 +1345,7 @@
 
       sides.forEach((side) => {
         const dir = getSideVector(side);
+        const perp = { x: -dir.y, y: dir.x };
         const dist = 158 + (84 - 158) * t;
         const px = cx + dir.x * dist;
         const py = cy + dir.y * dist;
@@ -1361,20 +1355,27 @@
 
         appendSymbol(svg, sub.peripheral.symbol, px, py, 26);
 
-        const cBaseX = cx + dir.x * 27, cBaseY = cy + dir.y * 27;
-        const cTargetX = cx + dir.x * 35, cTargetY = cy + dir.y * 35;
-        const pBaseX = px - dir.x * 25, pBaseY = py - dir.y * 25;
-        const pTargetX = cx + dir.x * 49, pTargetY = cy + dir.y * 49;
+        const midX = cx + dir.x * 42;
+        const midY = cy + dir.y * 42;
+
+        const cBaseX = cx + dir.x * 28 - perp.x * 6.2;
+        const cBaseY = cy + dir.y * 28 - perp.y * 6.2;
+        const cTargetX = midX - perp.x * 6.2;
+        const cTargetY = midY - perp.y * 6.2;
+
+        const pBaseX = px - dir.x * 26 + perp.x * 6.2;
+        const pBaseY = py - dir.y * 26 + perp.y * 6.2;
+        const pTargetX = midX + perp.x * 6.2;
+        const pTargetY = midY + perp.y * 6.2;
 
         drawElectronMark(svg, cBaseX + (cTargetX - cBaseX) * t, cBaseY + (cTargetY - cBaseY) * t, cDot, cColor, 1);
         drawElectronMark(svg, pBaseX + (pTargetX - pBaseX) * t, pBaseY + (pTargetY - pBaseY) * t, neighborIsDot, neighborColor, 1);
 
         if (showVacancies) {
-          drawVacancyMark(svg, cBaseX + dir.x * 15, cBaseY + dir.y * 15, 0.95);
-          drawVacancyMark(svg, pBaseX - dir.x * 15, pBaseY - dir.y * 15, 0.95);
+          drawVacancyMark(svg, cx + dir.x * 28 + perp.x * 6.2, cy + dir.y * 28 + perp.y * 6.2, 0.92);
+          drawVacancyMark(svg, px - dir.x * 26 - perp.x * 6.2, py - dir.y * 26 - perp.y * 6.2, 0.92);
         }
 
-        const perp = { x: -dir.y, y: dir.x };
         if (isSilica) {
           drawElectronMark(svg, px + perp.x * 23 - dir.x * 5, py + perp.y * 23 - dir.y * 5, neighborIsDot, neighborColor, 0.85);
           drawElectronMark(svg, px + perp.x * 23 + dir.x * 5, py + perp.y * 23 + dir.y * 5, neighborIsDot, neighborColor, 0.85);
@@ -1398,46 +1399,86 @@
 
       if (t > 0.85) {
         const badge = createSVG('rect', {
-          x: 245, y: 350, width: 330, height: 30, rx: 15,
+          x: 205, y: 350, width: 410, height: 30, rx: 15,
           fill: 'rgba(139, 92, 246, 0.14)', stroke: 'var(--network-color)', 'stroke-width': 1.6
         });
         svg.appendChild(badge);
         const lbl = createSVG('text', {
           x: 410, y: 370, 'text-anchor': 'middle',
-          fill: 'var(--network-color)', 'font-size': '13px', 'font-weight': '700'
+          fill: 'var(--network-color)', 'font-size': '12.5px', 'font-weight': '700'
         });
-        lbl.textContent = `♾️ Xarxa covalent contínua (${sub.formulaPlain}) · S'estén en 3D`;
+        lbl.textContent = isSilica
+          ? `♾️ Xarxa covalent (1 Si : 4 × ½ O = SiO₂) · S'estén en 3D`
+          : `♾️ Xarxa covalent contínua (${sub.formulaPlain}) · S'estén en 3D`;
         svg.appendChild(lbl);
       }
     }
 
     /**
-     * FASES 3 i 4 per a MOLÈCULES DISCRETES AMB 1 ÀTOM CENTRAL
+     * FASES 3 i 4 per a MOLÈCULES DISCRETES:
+     * Sense cap solapament entre cercles (•) i creus (×) ni en enllaços simples, dobles (O2, CO2) ni triples (N2)!
      */
     function drawMoleculeAssembly(svg, mol, t, showVacancies) {
       const cDot = mol.e1IsCentral;
       const cColor = cDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
       const pColor = cDot ? 'var(--atom-b-color)' : 'var(--atom-a-color)';
 
+      // Cas 1: Molècules diatòmiques (HCl, Cl2, O2, S2, N2, P2)
       if (mol.nPeripheral === 1) {
-        const cx = 275 + (368 - 275) * t;
-        const px = 545 + (452 - 545) * t;
+        const cx = 275 + (366 - 275) * t;
+        const px = 545 + (454 - 545) * t;
         const cy = 195;
+        const midX = (cx + px) / 2;
 
         appendSymbol(svg, mol.central.symbol, cx, cy, 32);
         appendSymbol(svg, mol.peripheral.symbol, px, cy, 32);
 
-        const yOffsets = mol.bondOrder === 1 ? [0] : (mol.bondOrder === 2 ? [-9, 9] : [-15, 0, 15]);
-        yOffsets.forEach(dy => {
-          const curCShareX = (cx + 30) + (((cx + px) / 2 - 7) - (cx + 30)) * t;
-          const curPShareX = (px - 30) + (((cx + px) / 2 + 7) - (px - 30)) * t;
-          drawElectronMark(svg, curCShareX, cy + dy, cDot, cColor, 1.05);
-          drawElectronMark(svg, curPShareX, cy + dy, !cDot, pColor, 1.05);
+        if (mol.bondOrder === 1) {
+          // 1 parell compartit: els dos electrons queden a la MATEIXA VERTICAL (x = midX)
+          const sep = 6.8;
+          const cStartX = cx + 28;
+          const pStartX = px - 28;
+
+          drawElectronMark(svg, cStartX + (midX - cStartX) * t, cy - sep, cDot, cColor, 1.05);
+          drawElectronMark(svg, pStartX + (midX - pStartX) * t, cy + sep, !cDot, pColor, 1.05);
+
           if (showVacancies) {
-            drawVacancyMark(svg, cx + 46, cy + dy, 1);
-            drawVacancyMark(svg, px - 46, cy + dy, 1);
+            drawVacancyMark(svg, cStartX, cy + sep, 0.95);
+            drawVacancyMark(svg, pStartX, cy - sep, 0.95);
           }
-        });
+        } else if (mol.bondOrder === 2) {
+          // 2 parells compartits (ex. O2, S2): 2 files verticals x 2 columnes (punts a midX-6, creus a midX+6)
+          const yRows = [-8, 8];
+          const cStartX = cx + 28;
+          const pStartX = px - 28;
+          const cTargetX = midX - 6.2;
+          const pTargetX = midX + 6.2;
+
+          yRows.forEach(dy => {
+            drawElectronMark(svg, cStartX + (cTargetX - cStartX) * t, cy + dy, cDot, cColor, 1.0);
+            drawElectronMark(svg, pStartX + (pTargetX - pStartX) * t, cy + dy, !cDot, pColor, 1.0);
+            if (showVacancies) {
+              drawVacancyMark(svg, cx + 43, cy + dy, 0.9);
+              drawVacancyMark(svg, px - 43, cy + dy, 0.9);
+            }
+          });
+        } else {
+          // 3 parells compartits (ex. N2, P2): 3 files verticals x 2 columnes (punts a midX-6.5, creus a midX+6.5)
+          const yRows = [-14, 0, 14];
+          const cStartX = cx + 28;
+          const pStartX = px - 28;
+          const cTargetX = midX - 6.5;
+          const pTargetX = midX + 6.5;
+
+          yRows.forEach(dy => {
+            drawElectronMark(svg, cStartX + (cTargetX - cStartX) * t, cy + dy, cDot, cColor, 0.95);
+            drawElectronMark(svg, pStartX + (pTargetX - pStartX) * t, cy + dy, !cDot, pColor, 0.95);
+            if (showVacancies) {
+              drawVacancyMark(svg, cx + 43, cy + dy, 0.85);
+              drawVacancyMark(svg, px - 43, cy + dy, 0.85);
+            }
+          });
+        }
 
         drawLonePairsAround(svg, cx, cy, mol.centralLonePairs, ['left', 'top', 'bottom'], cDot, cColor, 28, 1.05);
         drawLonePairsAround(svg, px, cy, mol.periphLonePairs, ['right', 'top', 'bottom'], !cDot, pColor, 28, 1.05);
@@ -1446,6 +1487,7 @@
         return;
       }
 
+      // Cas 2: Molècules poliatòmiques amb 1 àtom central (AB2, AB3, AB4)
       const cx = 410, cy = 195;
       appendSymbol(svg, mol.central.symbol, cx, cy, 32);
 
@@ -1457,33 +1499,63 @@
       const loneSides = allSides.filter(s => !periphSides.includes(s));
       drawLonePairsAround(svg, cx, cy, mol.centralLonePairs, loneSides, cDot, cColor, 28, 1.05);
 
-      const pairSep = mol.bondOrder === 1 ? [0] : [-9, 9];
+      const sep = 6.5;
 
       periphSides.forEach(side => {
         const dir = getSideVector(side);
-        const dist = 165 + (84 - 165) * t;
+        const perp = { x: -dir.y, y: dir.x };
+        const dist = 165 + (86 - 165) * t;
         const px = cx + dir.x * dist;
         const py = cy + dir.y * dist;
+        const midX = cx + dir.x * 43;
+        const midY = cy + dir.y * 43;
 
         appendSymbol(svg, mol.peripheral.symbol, px, py, 28);
 
-        pairSep.forEach(perpOffset => {
-          const perpX = -dir.y * perpOffset;
-          const perpY = dir.x * perpOffset;
+        if (mol.bondOrder === 1) {
+          // 1 parell compartit: un damunt de l'altre a la mateixa vertical (o horitzontal en braços verticals)
+          const cStartX = cx + dir.x * 28 - perp.x * sep;
+          const cStartY = cy + dir.y * 28 - perp.y * sep;
+          const pStartX = px - dir.x * 26 + perp.x * sep;
+          const pStartY = py - dir.y * 26 + perp.y * sep;
 
-          const curCX = (cx + dir.x * 29) + ((cx + dir.x * 35) - (cx + dir.x * 29)) * t + perpX;
-          const curCY = (cy + dir.y * 29) + ((cy + dir.y * 35) - (cy + dir.y * 29)) * t + perpY;
-          const curPX = (px - dir.x * 26) + ((cx + dir.x * 49) - (px - dir.x * 26)) * t + perpX;
-          const curPY = (py - dir.y * 26) + ((cy + dir.y * 49) - (py - dir.y * 26)) * t + perpY;
+          const cTargetX = midX - perp.x * sep;
+          const cTargetY = midY - perp.y * sep;
+          const pTargetX = midX + perp.x * sep;
+          const pTargetY = midY + perp.y * sep;
 
-          drawElectronMark(svg, curCX, curCY, cDot, cColor, 1);
-          drawElectronMark(svg, curPX, curPY, !cDot, pColor, 1);
+          drawElectronMark(svg, cStartX + (cTargetX - cStartX) * t, cStartY + (cTargetY - cStartY) * t, cDot, cColor, 1);
+          drawElectronMark(svg, pStartX + (pTargetX - pStartX) * t, pStartY + (pTargetY - pStartY) * t, !cDot, pColor, 1);
 
           if (showVacancies) {
-            drawVacancyMark(svg, cx + dir.x * 44 + perpX, cy + dir.y * 44 + perpY, 0.95);
-            drawVacancyMark(svg, px - dir.x * 41 + perpX, py - dir.y * 41 + perpY, 0.95);
+            drawVacancyMark(svg, cx + dir.x * 28 + perp.x * sep, cy + dir.y * 28 + perp.y * sep, 0.92);
+            drawVacancyMark(svg, px - dir.x * 26 - perp.x * sep, py - dir.y * 26 - perp.y * sep, 0.92);
           }
-        });
+        } else {
+          // 2 parells compartits (ex. CO2, CS2): 2 files paral·leles amb el punt al costat del central i la creu al costat del perifèric (sense cap solapament!)
+          [-7.5, 7.5].forEach(perpOffset => {
+            const pOffX = perp.x * perpOffset;
+            const pOffY = perp.y * perpOffset;
+
+            const cStartX = cx + dir.x * 28 + pOffX;
+            const cStartY = cy + dir.y * 28 + pOffY;
+            const pStartX = px - dir.x * 26 + pOffX;
+            const pStartY = py - dir.y * 26 + pOffY;
+
+            const cTargetX = midX - dir.x * 6 + pOffX;
+            const cTargetY = midY - dir.y * 6 + pOffY;
+            const pTargetX = midX + dir.x * 6 + pOffX;
+            const pTargetY = midY + dir.y * 6 + pOffY;
+
+            drawElectronMark(svg, cStartX + (cTargetX - cStartX) * t, cStartY + (cTargetY - cStartY) * t, cDot, cColor, 0.95);
+            drawElectronMark(svg, pStartX + (pTargetX - pStartX) * t, pStartY + (pTargetY - pStartY) * t, !cDot, pColor, 0.95);
+
+            if (showVacancies) {
+              drawVacancyMark(svg, cx + dir.x * 41 + pOffX, cy + dir.y * 41 + pOffY, 0.88);
+              drawVacancyMark(svg, px - dir.x * 39 + pOffX, py - dir.y * 39 + pOffY, 0.88);
+            }
+          });
+        }
 
         const oppSide = oppositeSide(side);
         drawLonePairsAround(svg, px, py, mol.periphLonePairs, allSides.filter(s => s !== oppSide), !cDot, pColor, 25, 0.95);
@@ -1493,7 +1565,7 @@
     }
 
     /**
-     * FASE 5: Dos diagrames de Lewis resultants (punts/creus vs guionets)
+     * FASE 5: Dos diagrames de Lewis resultants (punts/creus sense solapar vs guionets)
      */
     function drawDualLewisDiagrams(svg, sub) {
       svg.appendChild(createSVG('line', {
@@ -1565,9 +1637,10 @@
         appendSymbol(svg, 'O', centerX + 72, centerY, 26);
 
         [-1, 1].forEach(dirX => {
+          const midX = centerX + dirX * 36;
           if (mode === 'dots') {
-            drawElectronMark(svg, centerX + dirX * 30, centerY, cDot, cColor, 0.9);
-            drawElectronMark(svg, centerX + dirX * 42, centerY, !cDot, pColor, 0.9);
+            drawElectronMark(svg, midX, centerY - 6, cDot, cColor, 0.9);
+            drawElectronMark(svg, midX, centerY + 6, !cDot, pColor, 0.9);
           } else {
             svg.appendChild(createSVG('line', {
               x1: centerX + dirX * 22, y1: centerY, x2: centerX + dirX * 52, y2: centerY,
@@ -1610,8 +1683,8 @@
       appendSymbol(svg, symR, rx, centerY, 28);
 
       if (mode === 'dots') {
-        drawElectronMark(svg, centerX - 6, centerY, cDot, cColor, 0.95);
-        drawElectronMark(svg, centerX + 6, centerY, !cDot, pColor, 0.95);
+        drawElectronMark(svg, centerX, centerY - 6, cDot, cColor, 0.95);
+        drawElectronMark(svg, centerX, centerY + 6, !cDot, pColor, 0.95);
       } else {
         svg.appendChild(createSVG('line', {
           x1: lx + 20, y1: centerY, x2: rx - 20, y2: centerY,
@@ -1648,32 +1721,46 @@
       const pColor = cDot ? 'var(--atom-b-color)' : 'var(--atom-a-color)';
       const bondColor = 'var(--bond-color)';
 
+      // Molècules diatòmiques (AB o A2)
       if (mol.nPeripheral === 1) {
-        const cx = centerX - 42;
-        const px = centerX + 42;
+        const cx = centerX - 44;
+        const px = centerX + 44;
         const cy = centerY;
 
         appendSymbol(svg, mol.central.symbol, cx, cy, 30);
         appendSymbol(svg, mol.peripheral.symbol, px, cy, 30);
 
-        const yOffsets = mol.bondOrder === 1 ? [0] : (mol.bondOrder === 2 ? [-8, 8] : [-14, 0, 14]);
-        yOffsets.forEach(dy => {
-          if (mode === 'dots') {
-            drawElectronMark(svg, centerX - 6, cy + dy, cDot, cColor, 1);
-            drawElectronMark(svg, centerX + 6, cy + dy, !cDot, pColor, 1);
+        if (mode === 'dots') {
+          if (mol.bondOrder === 1) {
+            drawElectronMark(svg, centerX, cy - 6.5, cDot, cColor, 1);
+            drawElectronMark(svg, centerX, cy + 6.5, !cDot, pColor, 1);
+          } else if (mol.bondOrder === 2) {
+            [-7.5, 7.5].forEach(dy => {
+              drawElectronMark(svg, centerX - 6, cy + dy, cDot, cColor, 0.95);
+              drawElectronMark(svg, centerX + 6, cy + dy, !cDot, pColor, 0.95);
+            });
           } else {
+            [-13.5, 0, 13.5].forEach(dy => {
+              drawElectronMark(svg, centerX - 6.2, cy + dy, cDot, cColor, 0.9);
+              drawElectronMark(svg, centerX + 6.2, cy + dy, !cDot, pColor, 0.9);
+            });
+          }
+        } else {
+          const yOffsets = mol.bondOrder === 1 ? [0] : (mol.bondOrder === 2 ? [-8, 8] : [-14, 0, 14]);
+          yOffsets.forEach(dy => {
             svg.appendChild(createSVG('line', {
               x1: cx + 22, y1: cy + dy, x2: px - 22, y2: cy + dy,
               stroke: bondColor, 'stroke-width': 3.2, 'stroke-linecap': 'round'
             }));
-          }
-        });
+          });
+        }
 
         drawLonePairsAround(svg, cx, cy, mol.centralLonePairs, ['left', 'top', 'bottom'], cDot, cColor, 26, 0.95);
         drawLonePairsAround(svg, px, cy, mol.periphLonePairs, ['right', 'top', 'bottom'], !cDot, pColor, 26, 0.95);
         return;
       }
 
+      // Molècules poliatòmiques amb 1 àtom central
       appendSymbol(svg, mol.central.symbol, centerX, centerY, 30);
 
       const allSides = ['left', 'right', 'top', 'bottom'];
@@ -1684,31 +1771,42 @@
       const loneSides = allSides.filter(s => !periphSides.includes(s));
       drawLonePairsAround(svg, centerX, centerY, mol.centralLonePairs, loneSides, cDot, cColor, 26, 0.95);
 
-      const endDist = 80;
-      const pairSep = mol.bondOrder === 1 ? [0] : [-8, 8];
+      const endDist = 82;
 
       periphSides.forEach(side => {
         const dir = getSideVector(side);
+        const perp = { x: -dir.y, y: dir.x };
         const px = centerX + dir.x * endDist;
         const py = centerY + dir.y * endDist;
+        const midX = centerX + dir.x * 41;
+        const midY = centerY + dir.y * 41;
 
         appendSymbol(svg, mol.peripheral.symbol, px, py, 26);
 
-        pairSep.forEach(perpOffset => {
-          const perpX = -dir.y * perpOffset;
-          const perpY = dir.x * perpOffset;
-
-          if (mode === 'dots') {
-            drawElectronMark(svg, centerX + dir.x * 34 + perpX, centerY + dir.y * 34 + perpY, cDot, cColor, 0.95);
-            drawElectronMark(svg, centerX + dir.x * 46 + perpX, centerY + dir.y * 46 + perpY, !cDot, pColor, 0.95);
+        if (mode === 'dots') {
+          if (mol.bondOrder === 1) {
+            drawElectronMark(svg, midX - perp.x * 6.2, midY - perp.y * 6.2, cDot, cColor, 0.95);
+            drawElectronMark(svg, midX + perp.x * 6.2, midY + perp.y * 6.2, !cDot, pColor, 0.95);
           } else {
+            [-7.2, 7.2].forEach(perpOffset => {
+              const pOffX = perp.x * perpOffset;
+              const pOffY = perp.y * perpOffset;
+              drawElectronMark(svg, midX - dir.x * 5.8 + pOffX, midY - dir.y * 5.8 + pOffY, cDot, cColor, 0.9);
+              drawElectronMark(svg, midX + dir.x * 5.8 + pOffX, midY + dir.y * 5.8 + pOffY, !cDot, pColor, 0.9);
+            });
+          }
+        } else {
+          const dashOffsets = mol.bondOrder === 1 ? [0] : [-8, 8];
+          dashOffsets.forEach(perpOffset => {
+            const perpX = perp.x * perpOffset;
+            const perpY = perp.y * perpOffset;
             svg.appendChild(createSVG('line', {
               x1: centerX + dir.x * 23 + perpX, y1: centerY + dir.y * 23 + perpY,
               x2: px - dir.x * 21 + perpX, y2: py - dir.y * 21 + perpY,
               stroke: bondColor, 'stroke-width': 3.2, 'stroke-linecap': 'round'
             }));
-          }
-        });
+          });
+        }
 
         const oppSide = oppositeSide(side);
         drawLonePairsAround(svg, px, py, mol.periphLonePairs, allSides.filter(s => s !== oppSide), !cDot, pColor, 24, 0.9);
