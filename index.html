@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="ca" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enllaç Covalent: Molècules i Xarxes | IES Algarb</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- KaTeX CSS & JS per a renderització matemàtica i química -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --atom-a-color: #0284c7;
+      --atom-a-bg: rgba(2, 132, 199, 0.14);
+      --atom-b-color: #d97706;
+      --atom-b-bg: rgba(217, 119, 6, 0.14);
+      --vacancy-stroke: #ef4444;
+      --bond-color: #10b981;
+      --network-color: #8b5cf6;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    [data-theme="dark"] {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-subtle: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #475569;
+      --primary: #3b82f6;
+      --primary-hover: #60a5fa;
+      --atom-a-color: #38bdf8;
+      --atom-a-bg: rgba(56, 189, 248, 0.16);
+      --atom-b-color: #fbbf24;
+      --atom-b-bg: rgba(251, 191, 36, 0.16);
+      --vacancy-stroke: #f87171;
+      --bond-color: #34d399;
+      --network-color: #a78bfa;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.45;
+      transition: background-color 0.25s, color 0.25s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .brand span.subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: inline-block;
+      margin-left: 0.5rem;
+    }
+
+    .theme-btn {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+    }
+
+    .theme-btn:hover {
+      border-color: var(--primary);
+    }
+
+    main {
+      max-width: 1240px;
+      width: 100%;
+      margin: 0.85rem auto;
+      padding: 0 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .controls-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.7rem 1.1rem;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .select-group label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .label-a { color: var(--atom-a-color); }
+    .label-b { color: var(--atom-b-color); }
+
+    select {
+      padding: 0.42rem 0.7rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: 2px solid var(--primary);
+    }
+
+    .didactic-banner {
+      background: var(--bg-card);
+      border-left: 5px solid var(--primary);
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.65rem 1.1rem;
+      box-shadow: var(--shadow);
+      height: 94px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    .didactic-banner h2 {
+      font-size: 0.98rem;
+      margin-bottom: 0.22rem;
+      color: var(--primary);
+    }
+
+    .didactic-banner p {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr 245px;
+      gap: 0.85rem;
+      align-items: stretch;
+    }
+
+    @media (max-width: 860px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .didactic-banner {
+        height: auto;
+        min-height: 94px;
+      }
+    }
+
+    .stage-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .legend-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.1rem;
+      padding: 0.52rem 1rem;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.82rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .legend-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.1rem;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-weight: 500;
+    }
+
+    .sym-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--atom-a-color);
+    }
+
+    .sym-cross {
+      color: var(--atom-b-color);
+      font-weight: 900;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .sym-vacancy {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px dashed var(--vacancy-stroke);
+      display: inline-block;
+    }
+
+    .view-controls {
+      display: none;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .view-btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .view-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .view-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    #lewis-svg {
+      width: 100%;
+      height: 395px;
+      display: block;
+      user-select: none;
+      touch-action: none;
+    }
+
+    #lewis-svg.draggable {
+      cursor: grab;
+    }
+
+    #lewis-svg.dragging {
+      cursor: grabbing;
+    }
+
+    .phases-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.45rem;
+    }
+
+    .phases-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .phase-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .phase-btn {
+      width: 100%;
+      text-align: left;
+      padding: 0.48rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.18s;
+    }
+
+    .phase-btn:hover {
+      border-color: var(--primary);
+      transform: translateX(2px);
+    }
+
+    .phase-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+
+    .phase-btn.completed:not(.active) {
+      border-left: 4px solid var(--primary);
+    }
+
+    .phase-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(128, 128, 128, 0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .phase-btn.active .phase-num {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-nav-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.4rem;
+      padding-top: 0.35rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .mini-nav-btn {
+      padding: 0.45rem 0.5rem;
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.18s;
+    }
+
+    .mini-nav-btn.primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .mini-nav-btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    .mini-nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .configs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .config-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem 1.1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .config-card.card-a { border-top: 4px solid var(--atom-a-color); }
+    .config-card.card-b { border-top: 4px solid var(--atom-b-color); }
+
+    .config-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .config-title {
+      font-weight: 700;
+      font-size: 0.96rem;
+    }
+
+    .badge-group {
+      font-size: 0.78rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .card-a .badge-group { background: var(--atom-a-bg); color: var(--atom-a-color); }
+    .card-b .badge-group { background: var(--atom-b-bg); color: var(--atom-b-color); }
+
+    .config-row {
+      margin: 0.28rem 0;
+      font-size: 0.88rem;
+    }
+
+    .config-label {
+      color: var(--text-muted);
+      font-weight: 600;
+      display: inline-block;
+      min-width: 155px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-card);
+      margin-top: 0.8rem;
+    }
+
+    @keyframes pulseVacancy {
+      0%, 100% { stroke-opacity: 1; transform: scale(1); }
+      50% { stroke-opacity: 0.35; transform: scale(1.16); }
+    }
+
+    .vacancy-ring {
+      animation: pulseVacancy 1.6s infinite ease-in-out;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="brand-badge">IES Algarb</span>
+      <div>
+        <h1>Enllaç Covalent: Molècules i Xarxes <span class="subtitle">Física i Química · 3r i 4t d'ESO</span></h1>
+      </div>
+    </div>
+    <button class="theme-btn" id="theme-toggle" aria-label="Canvia el tema">
+      <span id="theme-icon">🌙</span> <span id="theme-text">Mode fosc</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="controls-panel">
+      <div class="select-group">
+        <label for="elem1-select" class="label-a">1. Primer No-metall (electrons amb punt •)</label>
+        <select id="elem1-select"></select>
+      </div>
+
+      <div class="select-group">
+        <label for="elem2-select" class="label-b">2. Segon No-metall (electrons amb creu ×)</label>
+        <select id="elem2-select"></select>
+      </div>
+    </section>
+
+    <section class="didactic-banner" id="didactic-banner">
+      <h2 id="step-title">Carregant...</h2>
+      <p id="step-desc"></p>
+    </section>
+
+    <section class="workspace-grid">
+      <div class="stage-container">
+        <div class="legend-bar">
+          <div class="legend-left">
+            <div class="legend-item"><span class="sym-dot"></span> Electrons de valència (<span id="leg-sym-a">N</span>)</div>
+            <div class="legend-item"><span class="sym-cross">×</span> Electrons de valència (<span id="leg-sym-b">H</span>)</div>
+            <div class="legend-item" id="legend-vacancy" style="display:none;"><span class="sym-vacancy"></span> Electrons que falten (octet / duet)</div>
+          </div>
+          <div class="view-controls" id="view-controls">
+            <button class="view-btn" id="btn-autorotate" title="Activa o atura la rotació suau">🔄 Gir auto</button>
+            <button class="view-btn" id="btn-reset-view" title="Torna a la posició inicial">🎯 Reinicia vista</button>
+          </div>
+        </div>
+        <svg id="lewis-svg" viewBox="0 0 820 395" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <aside class="phases-sidebar" aria-label="Fases de l'enllaç covalent">
+        <div class="phases-title">Fases de construcció</div>
+        <div class="phase-list" id="phase-list"></div>
+        <div class="sidebar-nav-row">
+          <button class="mini-nav-btn" id="btn-prev" disabled>⬅ Anterior</button>
+          <button class="mini-nav-btn primary" id="btn-next">Següent ➡</button>
+        </div>
+      </aside>
+    </section>
+
+    <section class="configs-grid" id="configs-grid"></section>
+  </main>
+
+  <footer>
+    Departament de Física i Química · <strong>IES Algarb</strong> · Simulació interactiva de Diagrames de Lewis i Xarxes Covalents
+  </footer>
+
+  <script>
+    /**
+     * Funcions segures d'involucració per a KaTeX
+     */
+    function mInline(latex) {
+      if (window.katex && typeof window.katex.renderToString === 'function') {
+        try {
+          return katex.renderToString(latex, { throwOnError: false, displayMode: false });
+        } catch (e) {
+          return latex;
+        }
+      }
+      return latex;
+    }
+
+    function mBlock(latex) {
+      if (window.katex && typeof window.katex.renderToString === 'function') {
+        try {
+          return katex.renderToString(latex, { throwOnError: false, displayMode: true });
+        } catch (e) {
+          return latex;
+        }
+      }
+      return latex;
+    }
+
+    /**
+     * Base de dades dels no-metalls i semimetalls covalents
+     * iupacRank segueix la Taula VI de la IUPAC (ordre d'escriptura en compostos binaris)
+     */
+    const NONMETALS = {
+      H:  { symbol: 'H',  name: 'Hidrogen', z: 1,  group: 1,  valence: 1, target: 2, needed: 1, iupacRank: 6,  valConfig: '1s^1' },
+      C:  { symbol: 'C',  name: 'Carboni',  z: 6,  group: 14, valence: 4, target: 8, needed: 4, iupacRank: 2,  valConfig: '2s^2\\,2p^2' },
+      Si: { symbol: 'Si', name: 'Silici',   z: 14, group: 14, valence: 4, target: 8, needed: 4, iupacRank: 1,  valConfig: '3s^2\\,3p^2' },
+      N:  { symbol: 'N',  name: 'Nitrogen', z: 7,  group: 15, valence: 5, target: 8, needed: 3, iupacRank: 5,  valConfig: '2s^2\\,2p^3' },
+      P:  { symbol: 'P',  name: 'Fòsfor',   z: 15, group: 15, valence: 5, target: 8, needed: 3, iupacRank: 4,  valConfig: '3s^2\\,3p^3' },
+      O:  { symbol: 'O',  name: 'Oxigen',   z: 8,  group: 16, valence: 6, target: 8, needed: 2, iupacRank: 11, valConfig: '2s^2\\,2p^4' },
+      S:  { symbol: 'S',  name: 'Sofre',    z: 16, group: 16, valence: 6, target: 8, needed: 2, iupacRank: 7,  valConfig: '3s^2\\,3p^4' },
+      F:  { symbol: 'F',  name: 'Fluor',    z: 9,  group: 17, valence: 7, target: 8, needed: 1, iupacRank: 12, valConfig: '2s^2\\,2p^5' },
+      Cl: { symbol: 'Cl', name: 'Clor',     z: 17, group: 17, valence: 7, target: 8, needed: 1, iupacRank: 10, valConfig: '3s^2\\,3p^5' },
+      Br: { symbol: 'Br', name: 'Brom',     z: 35, group: 17, valence: 7, target: 8, needed: 1, iupacRank: 9,  valConfig: '4s^2\\,4p^5' },
+      I:  { symbol: 'I',  name: 'Iode',     z: 53, group: 17, valence: 7, target: 8, needed: 1, iupacRank: 8,  valConfig: '5s^2\\,5p^5' }
+    };
+
+    const ELEMENT_KEYS = ['H', 'C', 'Si', 'N', 'P', 'O', 'S', 'F', 'Cl', 'Br', 'I'];
+
+    // Parelles que formen xarxes cristal·lines covalents 3D
+    const NETWORK_PAIRS = new Set(['C-C', 'Si-Si', 'C-Si', 'Si-C', 'Si-O', 'O-Si']);
+
+    // Parelles que no formen molècules covalents binàries simples d'octet a 3r d'ESO
+    const EXCLUDED_PAIRS = new Set([
+      'C-N', 'N-C', 'C-P', 'P-C', 'C-S', 'S-C',
+      'Si-N', 'N-Si', 'Si-P', 'P-Si', 'Si-S', 'S-Si'
+    ]);
+
+    const STEPS_META = [
+      { id: 1, label: 'Capa de valència' },
+      { id: 2, label: 'Electrons que falten' },
+      { id: 3, label: 'Estequiometria' },
+      { id: 4, label: 'Compartició d\'e⁻' },
+      { id: 5, label: 'Diagrames de Lewis' },
+      { id: 6, label: 'Estructura 3D (gir)' }
+    ];
+
+    let state = {
+      el1: 'N',
+      el2: 'H',
+      step: 1,
+      prevStep: 1,
+      rotX: 0.35,
+      rotY: -0.45,
+      autoRotate: false
+    };
+
+    let activeAnimId = null;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    function gcd(a, b) {
+      return b === 0 ? a : gcd(b, a % b);
+    }
+
+    function lcm(a, b) {
+      return (a * b) / gcd(a, b);
+    }
+
+    /**
+     * Comprova si la parella d'elements és didàcticament vàlida per a 3r d'ESO:
+     * - O bé forma una xarxa covalent atòmica clàssica (C, Si, SiC, SiO2)
+     * - O bé és una molècula homonuclear diatòmica (sym1 === sym2)
+     * - O bé en la molècula resultant almenys un dels elements intervé UNA ÚNICA VEGADA (min(n1, n2) === 1)
+     */
+    function isValidPair(sym1, sym2) {
+      const pairKey = `${sym1}-${sym2}`;
+      if (EXCLUDED_PAIRS.has(pairKey)) return false;
+      if (NETWORK_PAIRS.has(pairKey)) return true;
+      if (sym1 === sym2) return true;
+
+      const e1 = NONMETALS[sym1];
+      const e2 = NONMETALS[sym2];
+      const totalShared = lcm(e1.needed, e2.needed);
+      const n1 = totalShared / e1.needed;
+      const n2 = totalShared / e2.needed;
+
+      return Math.min(n1, n2) === 1;
+    }
+
+    /**
+     * Formata la fórmula binària seguint l'ordre oficial de la IUPAC (Taula VI):
+     * Si -> C -> P -> N -> H -> S -> I -> Br -> Cl -> O -> F
+     */
+    function formatIupacFormula(elA, countA, elB, countB) {
+      let first = elA, c1 = countA, second = elB, c2 = countB;
+      if (elA.iupacRank > elB.iupacRank) {
+        first = elB; c1 = countB;
+        second = elA; c2 = countA;
+      }
+      const subMap = { 2: '₂', 3: '₃', 4: '₄' };
+      const formulaLatex = `\\text{${first.symbol}}${c1 > 1 ? '_' + c1 : ''}\\text{${second.symbol}}${c2 > 1 ? '_' + c2 : ''}`;
+      const formulaPlain = `${first.symbol}${c1 > 1 ? subMap[c1] : ''}${second.symbol}${c2 > 1 ? subMap[c2] : ''}`;
+      return { formulaLatex, formulaPlain };
+    }
+
+    /**
+     * Analitza la parella d'elements i determina l'estequiometria exacta, l'estructura de Lewis i la geometria 3D
+     */
+    function analyzeSubstance(sym1, sym2) {
+      const e1 = NONMETALS[sym1];
+      const e2 = NONMETALS[sym2];
+      const pairKey = `${sym1}-${sym2}`;
+
+      // 1. XARXES COVALENTS ATÒMIQUES
+      if (pairKey === 'C-C') {
+        return {
+          isNetwork: true,
+          networkKind: 'diamond',
+          central: e1,
+          peripheral: e1,
+          nCentral: 1,
+          nPeripheral: 4,
+          bondOrder: 1,
+          centralLonePairs: 0,
+          periphLonePairs: 0,
+          formulaLatex: '\\text{C}_n\\text{ (diamant)}',
+          formulaPlain: 'C (Diamant)',
+          geometryName: 'Xarxa tetraèdrica 3D',
+          bondAngle: '109,5°',
+          e1IsCentral: true
+        };
+      }
+
+      if (pairKey === 'Si-Si') {
+        return {
+          isNetwork: true,
+          networkKind: 'diamond',
+          central: e1,
+          peripheral: e1,
+          nCentral: 1,
+          nPeripheral: 4,
+          bondOrder: 1,
+          centralLonePairs: 0,
+          periphLonePairs: 0,
+          formulaLatex: '\\text{Si}_n\\text{ (silici cristal·lí)}',
+          formulaPlain: 'Si (Xarxa)',
+          geometryName: 'Xarxa tetraèdrica 3D',
+          bondAngle: '109,5°',
+          e1IsCentral: true
+        };
+      }
+
+      if (pairKey === 'C-Si' || pairKey === 'Si-C') {
+        const central = NONMETALS['Si'];
+        const peripheral = NONMETALS['C'];
+        return {
+          isNetwork: true,
+          networkKind: 'zincblende',
+          central,
+          peripheral,
+          nCentral: 1,
+          nPeripheral: 1,
+          bondOrder: 1,
+          centralLonePairs: 0,
+          periphLonePairs: 0,
+          formulaLatex: '\\text{SiC (carbur de silici)}',
+          formulaPlain: 'SiC',
+          geometryName: 'Xarxa tetraèdrica 3D (1:1)',
+          bondAngle: '109,5°',
+          e1IsCentral: sym1 === 'Si'
+        };
+      }
+
+      if (pairKey === 'Si-O' || pairKey === 'O-Si') {
+        const central = NONMETALS['Si'];
+        const peripheral = NONMETALS['O'];
+        return {
+          isNetwork: true,
+          networkKind: 'silica',
+          central,
+          peripheral,
+          nCentral: 1,
+          nPeripheral: 2,
+          bondOrder: 1,
+          centralLonePairs: 0,
+          periphLonePairs: 2,
+          formulaLatex: '\\text{SiO}_2\\text{ (quars / sílice)}',
+          formulaPlain: 'SiO₂',
+          geometryName: 'Xarxa de tetraedres SiO₄',
+          bondAngle: '109,5° / 144°',
+          e1IsCentral: sym1 === 'Si'
+        };
+      }
+
+      // 2. MOLÈCULES DIATÒMIQUES HOMONUCLEARS (H2, F2, Cl2, Br2, I2, O2, S2, N2, P2)
+      if (sym1 === sym2) {
+        const bondOrder = e1.needed;
+        const lonePairs = Math.floor((e1.valence - bondOrder) / 2);
+        return {
+          isNetwork: false,
+          central: e1,
+          peripheral: e2,
+          nCentral: 1,
+          nPeripheral: 1,
+          bondOrder,
+          centralLonePairs: lonePairs,
+          periphLonePairs: lonePairs,
+          formulaLatex: `\\text{${sym1}}_2`,
+          formulaPlain: `${sym1}₂`,
+          geometryName: 'Lineal',
+          bondAngle: '180°',
+          geometryType: 'diatomic',
+          e1IsCentral: true
+        };
+      }
+
+      // 3. MOLÈCULES HETERONUCLEARS AMB UN ÚNIC ÀTOM CENTRAL (AB, AB2, AB3, AB4)
+      const totalSharedPairs = lcm(e1.needed, e2.needed);
+      const n1 = totalSharedPairs / e1.needed;
+      const n2 = totalSharedPairs / e2.needed;
+      const { formulaLatex, formulaPlain } = formatIupacFormula(e1, n1, e2, n2);
+
+      let central, peripheral, nCentral, nPeripheral, e1IsCentral;
+      if (n1 === 1 && n2 > 1) {
+        central = e1; peripheral = e2; nCentral = 1; nPeripheral = n2; e1IsCentral = true;
+      } else if (n2 === 1 && n1 > 1) {
+        central = e2; peripheral = e1; nCentral = 1; nPeripheral = n1; e1IsCentral = false;
+      } else {
+        if (sym1 === 'H') {
+          central = e2; peripheral = e1; nCentral = 1; nPeripheral = 1; e1IsCentral = false;
+        } else {
+          central = e1; peripheral = e2; nCentral = 1; nPeripheral = 1; e1IsCentral = true;
+        }
+      }
+
+      const bondOrder = peripheral.needed;
+      const centralLonePairs = Math.floor((central.valence - nPeripheral * bondOrder) / 2);
+      const periphLonePairs = Math.floor((peripheral.valence - bondOrder) / 2);
+
+      let geometryName = 'Lineal';
+      let bondAngle = '180°';
+      let geometryType = 'linear-2';
+
+      if (nPeripheral === 1) {
+        geometryName = 'Lineal (diatòmica)';
+        bondAngle = '180°';
+        geometryType = 'diatomic';
+      } else if (nPeripheral === 2) {
+        if (centralLonePairs === 0) {
+          geometryName = 'Lineal';
+          bondAngle = '180°';
+          geometryType = 'linear-3';
+        } else {
+          geometryName = 'Angular';
+          bondAngle = central.symbol === 'O' ? '104,5°' : '92°';
+          geometryType = 'bent';
+        }
+      } else if (nPeripheral === 3) {
+        geometryName = 'Piramidal trigonal';
+        bondAngle = central.symbol === 'N' ? '107°' : '93,5°';
+        geometryType = 'pyramidal';
+      } else if (nPeripheral === 4) {
+        geometryName = 'Tetraèdrica';
+        bondAngle = '109,5°';
+        geometryType = 'tetrahedral';
+      }
+
+      return {
+        isNetwork: false,
+        central,
+        peripheral,
+        nCentral,
+        nPeripheral,
+        bondOrder,
+        centralLonePairs,
+        periphLonePairs,
+        formulaLatex,
+        formulaPlain,
+        geometryName,
+        bondAngle,
+        geometryType,
+        e1IsCentral
+      };
+    }
+
+    function initApp() {
+      populateSelects();
+      setupEvents();
+      renderAll();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+
+    window.addEventListener('load', () => {
+      renderAll();
+    });
+
+    function populateSelects() {
+      const s1 = document.getElementById('elem1-select');
+      const s2 = document.getElementById('elem2-select');
+      if (!s1 || !s2) return;
+
+      const rebuild = () => {
+        s1.innerHTML = '';
+        s2.innerHTML = '';
+        ELEMENT_KEYS.forEach(k => {
+          const el = NONMETALS[k];
+          const opt1 = document.createElement('option');
+          opt1.value = k;
+          opt1.textContent = `${el.name} (${el.symbol}) — Grup ${el.group} · ${el.valence} e⁻ valència`;
+          if (k === state.el1) opt1.selected = true;
+          if (!isValidPair(k, state.el2)) opt1.disabled = true;
+          s1.appendChild(opt1);
+
+          const opt2 = document.createElement('option');
+          opt2.value = k;
+          opt2.textContent = `${el.name} (${el.symbol}) — Grup ${el.group} · ${el.valence} e⁻ valència`;
+          if (k === state.el2) opt2.selected = true;
+          if (!isValidPair(state.el1, k)) opt2.disabled = true;
+          s2.appendChild(opt2);
+        });
+      };
+
+      rebuild();
+      s1.addEventListener('change', (e) => {
+        state.el1 = e.target.value;
+        state.prevStep = 1;
+        state.step = 1;
+        rebuild();
+        renderAll();
+      });
+      s2.addEventListener('change', (e) => {
+        state.el2 = e.target.value;
+        state.prevStep = 1;
+        state.step = 1;
+        rebuild();
+        renderAll();
+      });
+    }
+
+    function goToStep(newStep) {
+      if (newStep < 1 || newStep > 6) return;
+      state.prevStep = state.step;
+      state.step = newStep;
+      renderAll();
+    }
+
+    function setupEvents() {
+      document.getElementById('btn-prev').addEventListener('click', () => goToStep(state.step - 1));
+      document.getElementById('btn-next').addEventListener('click', () => goToStep(state.step + 1));
+
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+        document.getElementById('theme-text').textContent = isDark ? 'Mode fosc' : 'Mode clar';
+      });
+
+      const svg = document.getElementById('lewis-svg');
+
+      const onPointerDown = (clientX, clientY) => {
+        if (state.step !== 6) return;
+        isDragging = true;
+        lastMouseX = clientX;
+        lastMouseY = clientY;
+        svg.classList.add('dragging');
+      };
+
+      const onPointerMove = (clientX, clientY) => {
+        if (!isDragging || state.step !== 6) return;
+        const dx = clientX - lastMouseX;
+        const dy = clientY - lastMouseY;
+        lastMouseX = clientX;
+        lastMouseY = clientY;
+        state.rotY += dx * 0.012;
+        state.rotX += dy * 0.012;
+        if (!state.autoRotate) {
+          const sub = analyzeSubstance(state.el1, state.el2);
+          svg.innerHTML = '';
+          drawInteractive3DStage(svg, sub);
+        }
+      };
+
+      const onPointerUp = () => {
+        if (isDragging) {
+          isDragging = false;
+          svg.classList.remove('dragging');
+        }
+      };
+
+      svg.addEventListener('mousedown', (e) => onPointerDown(e.clientX, e.clientY));
+      window.addEventListener('mousemove', (e) => onPointerMove(e.clientX, e.clientY));
+      window.addEventListener('mouseup', onPointerUp);
+
+      svg.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 1) onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: true });
+      window.addEventListener('touchend', onPointerUp);
+
+      document.getElementById('btn-reset-view').addEventListener('click', () => {
+        state.rotX = 0.35;
+        state.rotY = -0.45;
+        if (state.step === 6 && !state.autoRotate) {
+          const sub = analyzeSubstance(state.el1, state.el2);
+          svg.innerHTML = '';
+          drawInteractive3DStage(svg, sub);
+        }
+      });
+
+      document.getElementById('btn-autorotate').addEventListener('click', (e) => {
+        state.autoRotate = !state.autoRotate;
+        e.target.classList.toggle('active', state.autoRotate);
+        if (state.step === 6) {
+          renderAll();
+        }
+      });
+    }
+
+    function renderAll() {
+      const sub = analyzeSubstance(state.el1, state.el2);
+      const e1 = NONMETALS[state.el1];
+      const e2 = NONMETALS[state.el2];
+
+      document.getElementById('leg-sym-a').textContent = e1.symbol;
+      document.getElementById('leg-sym-b').textContent = e2.symbol;
+
+      document.getElementById('btn-prev').disabled = state.step === 1;
+      document.getElementById('btn-next').disabled = state.step === 6;
+      document.getElementById('legend-vacancy').style.display = (state.step === 2 || state.step === 3) ? 'flex' : 'none';
+      document.getElementById('view-controls').style.display = (state.step === 6) ? 'flex' : 'none';
+
+      const svg = document.getElementById('lewis-svg');
+      svg.classList.toggle('draggable', state.step === 6);
+
+      renderPhaseButtons();
+      renderDidacticText(e1, e2, sub);
+      renderCards(e1, e2, sub);
+      renderSVG(e1, e2, sub);
+    }
+
+    function renderPhaseButtons() {
+      const list = document.getElementById('phase-list');
+      list.innerHTML = STEPS_META.map(s => {
+        let cls = 'phase-btn';
+        if (s.id === state.step) cls += ' active';
+        else if (s.id < state.step) cls += ' completed';
+        return `<button class="${cls}" data-step="${s.id}">
+                  <span class="phase-num">${s.id}</span>
+                  <span>${s.label}</span>
+                </button>`;
+      }).join('');
+
+      list.querySelectorAll('.phase-btn').forEach(btn => {
+        btn.addEventListener('click', () => goToStep(parseInt(btn.getAttribute('data-step'), 10)));
+      });
+    }
+
+    function renderDidacticText(e1, e2, sub) {
+      const titleEl = document.getElementById('step-title');
+      const descEl = document.getElementById('step-desc');
+      const s = state.step;
+
+      if (s === 1) {
+        titleEl.textContent = `Fase 1: Capa de valència segons la notació de Lewis`;
+        if (e1.symbol === e2.symbol) {
+          descEl.innerHTML = `Observam àtoms de <strong>${e1.name}</strong> (${mInline(`\\text{${e1.symbol}}`)}, grup ${e1.group}). A l'esquema de Lewis només dibuixam els seus <strong>${e1.valence} electrons de valència</strong> al voltant del símbol (amb punts • i creus × per distingir de quin àtom prové cada electró).`;
+        } else {
+          descEl.innerHTML = `En l'esquema de Lewis només representam la capa de valència: el <strong>${e1.name}</strong> (${mInline(`\\text{${e1.symbol}}`)}) té <strong>${e1.valence} ${e1.valence === 1 ? 'electró' : 'electrons'}</strong> (punts •) i el <strong>${e2.name}</strong> (${mInline(`\\text{${e2.symbol}}`)}) té <strong>${e2.valence} ${e2.valence === 1 ? 'electró' : 'electrons'}</strong> (creus ×).`;
+        }
+      } else if (s === 2) {
+        const rule1 = e1.target === 2 ? 'duet (2 e⁻)' : 'octet (8 e⁻)';
+        const rule2 = e2.target === 2 ? 'duet (2 e⁻)' : 'octet (8 e⁻)';
+        titleEl.textContent = `Fase 2: Quants electrons necessita cada àtom?`;
+        descEl.innerHTML = `Al <strong>${e1.name}</strong> li falten <strong>${e1.needed} ${e1.needed === 1 ? 'electró' : 'electrons'}</strong> per completar el seu ${rule1}, i al <strong>${e2.name}</strong> li'n falten <strong>${e2.needed}</strong> per assolir el seu ${rule2} (marcats amb cercles discontinus).`;
+      } else if (s === 3) {
+        titleEl.textContent = `Fase 3: Ajust estequiomètric (proporció d'àtoms)`;
+        if (sub.isNetwork) {
+          if (sub.networkKind === 'silica') {
+            descEl.innerHTML = `Cada àtom de <strong>Silici</strong> (${mInline('\\text{Si}')}) necessita compartir <strong>4 electrons</strong> i cada <strong>Oxigen</strong> (${mInline('\\text{O}')}) en comparteix <strong>2</strong> (un amb cada ${mInline('\\text{Si}')} veí). Forma una <strong>xarxa infinita</strong> de proporció 1:2 (${mInline('\\text{SiO}_2')}).`;
+          } else {
+            descEl.innerHTML = `Tant el ${mInline(`\\text{${e1.symbol}}`)} com el ${mInline(`\\text{${e2.symbol}}`)} formen <strong>4 enllaços covalents simples</strong> en les tres direccions de l'espai, generant una <strong>xarxa cristal·lina covalent</strong> gegant.`;
+          }
+        } else if (sub.nCentral === 1 && sub.nPeripheral === 1) {
+          descEl.innerHTML = `Cada àtom de ${mInline(`\\text{${e1.symbol}}`)} necessita ${e1.needed} ${e1.needed === 1 ? 'electró' : 'electrons'} i cada àtom de ${mInline(`\\text{${e2.symbol}}`)} en necessita ${e2.needed}. Amb <strong>1 àtom de ${e1.name}</strong> i <strong>1 àtom de ${e2.name}</strong> es forma la molècula ${mInline(sub.formulaLatex)}.`;
+        } else {
+          descEl.innerHTML = `L'àtom central de <strong>${sub.central.name}</strong> (${mInline(`\\text{${sub.central.symbol}}`)}) necessita <strong>${sub.central.needed} electrons</strong>, mentre que cada ${mInline(`\\text{${sub.peripheral.symbol}}`)} n'aporta ${sub.peripheral.needed}. Necessitam <strong>1 àtom de ${mInline(`\\text{${sub.central.symbol}}`)}</strong> i <strong>${sub.nPeripheral} àtoms de ${mInline(`\\text{${sub.peripheral.symbol}}`)}</strong> (${mInline(sub.formulaLatex)}).`;
+        }
+      } else if (s === 4) {
+        titleEl.textContent = sub.isNetwork
+          ? `Fase 4: Compartició d'electrons al node de la xarxa covalent`
+          : `Fase 4: Compartició de parells d'electrons (${sub.formulaPlain})`;
+        descEl.innerHTML = sub.isNetwork
+          ? `Cada parell compartit (un punt • i una creu ×) forma un enllaç covalent simple. Els àtoms exteriors conserven electrons per continuar enllaçant-se indefinidament amb la resta del cristall.`
+          : `Els àtoms s'acosten i comparteixen parells d'electrons (un punt • i una creu × a cada parell), completant tots el seu octet (o duet per a l'Hidrogen) dins de la molècula ${mInline(sub.formulaLatex)}.`;
+      } else if (s === 5) {
+        titleEl.textContent = sub.isNetwork
+          ? `Fase 5: Unitat estructural de Lewis de la xarxa (punts/creus i guionets)`
+          : `Fase 5: Diagrama de Lewis de ${sub.formulaPlain} (dos formats equivalents)`;
+        descEl.innerHTML = sub.isNetwork
+          ? `Representam la <strong>unitat repetitiva entre claudàtors</strong>: a l'esquerra amb punts i creus, i a la dreta amb guionets d'enllaç que continuen cap als àtoms veïns del cristall.`
+          : `A l'esquerra tens el <strong>diagrama de punts i creus</strong> i a la dreta el <strong>diagrama desenvolupat amb guionets</strong>, on cada parell d'electrons compartits es substitueix per una ratlla d'enllaç.`;
+      } else if (s === 6) {
+        titleEl.textContent = sub.isNetwork
+          ? `Fase 6: Xarxa cristal·lina covalent 3D (${sub.formulaPlain}) — Arrossega per girar!`
+          : `Fase 6: Molècula resultant (${sub.formulaPlain}) — Arrossega amb el ratolí per girar!`;
+        descEl.innerHTML = sub.isNetwork
+          ? `Fes clic i <strong>arrossega sobre la figura</strong> per explorar en 3D la xarxa covalent (${sub.geometryName}, angles de ${sub.bondAngle}). Tots els àtoms estan units per forts enllaços covalents continus.`
+          : `Fes clic i <strong>arrossega sobre la molècula</strong> per girar-la lliurement en 3D. Adopta una <strong>geometria ${sub.geometryName.toLowerCase()}</strong> (angle ~${sub.bondAngle}) i existeix com a unitat independent (${mInline(sub.formulaLatex)}).`;
+      }
+    }
+
+    function renderCards(e1, e2, sub) {
+      const grid = document.getElementById('configs-grid');
+      grid.innerHTML = `
+        <div class="config-card card-a">
+          <div class="config-header">
+            <span class="config-title">${e1.name} (${mInline(`\\text{${e1.symbol}}`)}) · Punts (•)</span>
+            <span class="badge-group">Grup ${e1.group} · Z = ${e1.z}</span>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Configuració de valència:</span>
+            <span>${mInline(e1.valConfig)} (${e1.valence} e⁻)</span>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Electrons que necessita:</span>
+            <span><strong>${e1.needed}</strong> ${e1.needed === 1 ? 'electró' : 'electrons'} (per arribar a ${e1.target} e⁻)</span>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Enllaços que forma:</span>
+            <span>${e1.needed} ${e1.needed === 1 ? 'enllaç covalent' : 'enllaços covalents'}</span>
+          </div>
+        </div>
+
+        <div class="config-card card-b">
+          <div class="config-header">
+            <span class="config-title">${e2.name} (${mInline(`\\text{${e2.symbol}}`)}) · Creus (×)</span>
+            <span class="badge-group">Grup ${e2.group} · Z = ${e2.z}</span>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Configuració de valència:</span>
+            <span>${mInline(e2.valConfig)} (${e2.valence} e⁻)</span>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Tipus d'estructura:</span>
+            <span>${sub.isNetwork ? '<strong style="color:var(--network-color);">Xarxa covalent atòmica 3D</strong>' : '<strong style="color:var(--bond-color);">Molècula covalent discreta</strong>'}</span>
+          </div>
+          <div class="config-row">
+            <span class="config-label">Fórmula IUPAC:</span>
+            <span>${state.step >= 3 ? mInline(sub.formulaLatex) : '<em>Pendent de la Fase 3</em>'}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function drawElectronMark(parent, x, y, isDot, color, scale = 1) {
+      if (isDot) {
+        parent.appendChild(createSVG('circle', {
+          cx: x, cy: y, r: 4.4 * scale, fill: color
+        }));
+      } else {
+        const s = 4.2 * scale;
+        const g = createSVG('g', {
+          stroke: color,
+          'stroke-width': 2.2 * scale,
+          'stroke-linecap': 'round'
+        });
+        g.appendChild(createSVG('line', { x1: x - s, y1: y - s, x2: x + s, y2: y + s }));
+        g.appendChild(createSVG('line', { x1: x - s, y1: y + s, x2: x + s, y2: y - s }));
+        parent.appendChild(g);
+      }
+    }
+
+    function drawVacancyMark(parent, x, y, scale = 1) {
+      parent.appendChild(createSVG('circle', {
+        cx: x, cy: y, r: 5.4 * scale,
+        fill: 'rgba(239, 68, 68, 0.12)',
+        stroke: 'var(--vacancy-stroke)',
+        'stroke-width': 1.7,
+        'stroke-dasharray': '3,2',
+        class: 'vacancy-ring'
+      }));
+    }
+
+    function drawIsolatedLewisAtom(parent, opts) {
+      const { symbol, valence, target, cx, cy, isDot, color, showVacancies, sidesOrder, scale = 1 } = opts;
+      const g = createSVG('g', {});
+
+      const txt = createSVG('text', {
+        x: cx, y: cy + 10 * scale,
+        'text-anchor': 'middle',
+        fill: 'var(--text-main)',
+        'font-weight': '800',
+        'font-size': `${30 * scale}px`
+      });
+      txt.textContent = symbol;
+      g.appendChild(txt);
+
+      const d = 28 * scale;
+      const sep = 6.5 * scale;
+      const maxSides = target === 2 ? 1 : 4;
+      const sideCounts = { top: 0, right: 0, bottom: 0, left: 0 };
+      const sideVacancies = { top: 0, right: 0, bottom: 0, left: 0 };
+
+      for (let i = 0; i < valence; i++) sideCounts[sidesOrder[i % maxSides]]++;
+      if (showVacancies) {
+        for (let i = valence; i < target; i++) sideVacancies[sidesOrder[i % maxSides]]++;
+      }
+
+      const getCoords = (side, slotIdx, totalInSide) => {
+        const offset = totalInSide === 1 ? 0 : (slotIdx === 0 ? -sep : sep);
+        if (side === 'top')    return { x: cx + offset, y: cy - d };
+        if (side === 'bottom') return { x: cx + offset, y: cy + d };
+        if (side === 'left')   return { x: cx - d,      y: cy + offset };
+        if (side === 'right')  return { x: cx + d,      y: cy + offset };
+      };
+
+      ['top', 'right', 'bottom', 'left'].forEach(side => {
+        const eCount = sideCounts[side];
+        const vCount = sideVacancies[side];
+        const total = eCount + vCount;
+        for (let k = 0; k < eCount; k++) {
+          const pt = getCoords(side, k, total);
+          drawElectronMark(g, pt.x, pt.y, isDot, color, scale);
+        }
+        for (let v = 0; v < vCount; v++) {
+          const pt = getCoords(side, eCount + v, total);
+          drawVacancyMark(g, pt.x, pt.y, scale);
+        }
+      });
+
+      parent.appendChild(g);
+    }
+
+    function renderSVG(e1, e2, sub) {
+      if (activeAnimId) {
+        cancelAnimationFrame(activeAnimId);
+        activeAnimId = null;
+      }
+
+      const svg = document.getElementById('lewis-svg');
+      svg.innerHTML = '';
+      const s = state.step;
+
+      // FASES 1 i 2: Àtoms aïllats
+      if (s === 1 || s === 2) {
+        const showVac = (s === 2);
+        drawIsolatedLewisAtom(svg, {
+          symbol: e1.symbol, valence: e1.valence, target: e1.target,
+          cx: 265, cy: 195, isDot: true, color: 'var(--atom-a-color)',
+          showVacancies: showVac, sidesOrder: ['right', 'top', 'bottom', 'left'], scale: 1.15
+        });
+        drawIsolatedLewisAtom(svg, {
+          symbol: e2.symbol, valence: e2.valence, target: e2.target,
+          cx: 555, cy: 195, isDot: false, color: 'var(--atom-b-color)',
+          showVacancies: showVac, sidesOrder: ['left', 'top', 'bottom', 'right'], scale: 1.15
+        });
+
+        const lbl1 = createSVG('text', {
+          x: 265, y: 280, 'text-anchor': 'middle',
+          fill: 'var(--atom-a-color)', 'font-size': '14px', 'font-weight': '700'
+        });
+        lbl1.textContent = s === 1
+          ? `${e1.valence} ${e1.valence === 1 ? 'electró' : 'electrons'} de valència`
+          : `Li ${e1.needed === 1 ? 'falta' : 'falten'} ${e1.needed} e⁻`;
+        svg.appendChild(lbl1);
+
+        const lbl2 = createSVG('text', {
+          x: 555, y: 280, 'text-anchor': 'middle',
+          fill: 'var(--atom-b-color)', 'font-size': '14px', 'font-weight': '700'
+        });
+        lbl2.textContent = s === 1
+          ? `${e2.valence} ${e2.valence === 1 ? 'electró' : 'electrons'} de valència`
+          : `Li ${e2.needed === 1 ? 'falta' : 'falten'} ${e2.needed} e⁻`;
+        svg.appendChild(lbl2);
+        return;
+      }
+
+      // FASES 3 i 4: Acoblament (molècula amb 1 àtom central o node de xarxa covalent)
+      if (s === 3 || s === 4) {
+        const shouldAnimate = (s === 4 && state.prevStep < 4);
+        const renderFrame = (t, showVac) => {
+          svg.innerHTML = '';
+          if (sub.isNetwork) drawNetworkAssembly(svg, sub, t, showVac);
+          else drawMoleculeAssembly(svg, sub, t, showVac);
+        };
+
+        if (shouldAnimate) {
+          const duration = 850;
+          const start = performance.now();
+          const tick = (now) => {
+            const t = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - t, 3);
+            renderFrame(ease, false);
+            if (t < 1) activeAnimId = requestAnimationFrame(tick);
+            else activeAnimId = null;
+          };
+          activeAnimId = requestAnimationFrame(tick);
+        } else {
+          renderFrame(s === 4 ? 1 : 0, s === 3);
+        }
+        return;
+      }
+
+      // FASE 5: Diagrames de Lewis resultants (punts/creus vs guionets)
+      if (s === 5) {
+        drawDualLewisDiagrams(svg, sub);
+        return;
+      }
+
+      // FASE 6: Visor 3D interactiu
+      if (s === 6) {
+        if (state.autoRotate) {
+          const loop = () => {
+            if (state.step !== 6 || !state.autoRotate) return;
+            if (!isDragging) state.rotY += 0.012;
+            svg.innerHTML = '';
+            drawInteractive3DStage(svg, sub);
+            activeAnimId = requestAnimationFrame(loop);
+          };
+          activeAnimId = requestAnimationFrame(loop);
+        } else {
+          drawInteractive3DStage(svg, sub);
+        }
+      }
+    }
+
+    /**
+     * FASES 3 i 4 per a XARXES COVALENTS
+     */
+    function drawNetworkAssembly(svg, sub, t, showVacancies) {
+      const cDot = sub.e1IsCentral;
+      const cColor = cDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
+
+      const cx = 410, cy = 190;
+      appendSymbol(svg, sub.central.symbol, cx, cy, 30);
+
+      const sides = ['left', 'right', 'top', 'bottom'];
+      const isSilica = sub.networkKind === 'silica';
+
+      sides.forEach((side) => {
+        const dir = getSideVector(side);
+        const dist = 158 + (84 - 158) * t;
+        const px = cx + dir.x * dist;
+        const py = cy + dir.y * dist;
+
+        const neighborIsDot = !cDot;
+        const neighborColor = neighborIsDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
+
+        appendSymbol(svg, sub.peripheral.symbol, px, py, 26);
+
+        const cBaseX = cx + dir.x * 27, cBaseY = cy + dir.y * 27;
+        const cTargetX = cx + dir.x * 35, cTargetY = cy + dir.y * 35;
+        const pBaseX = px - dir.x * 25, pBaseY = py - dir.y * 25;
+        const pTargetX = cx + dir.x * 49, pTargetY = cy + dir.y * 49;
+
+        drawElectronMark(svg, cBaseX + (cTargetX - cBaseX) * t, cBaseY + (cTargetY - cBaseY) * t, cDot, cColor, 1);
+        drawElectronMark(svg, pBaseX + (pTargetX - pBaseX) * t, pBaseY + (pTargetY - pBaseY) * t, neighborIsDot, neighborColor, 1);
+
+        if (showVacancies) {
+          drawVacancyMark(svg, cBaseX + dir.x * 15, cBaseY + dir.y * 15, 0.95);
+          drawVacancyMark(svg, pBaseX - dir.x * 15, pBaseY - dir.y * 15, 0.95);
+        }
+
+        const perp = { x: -dir.y, y: dir.x };
+        if (isSilica) {
+          drawElectronMark(svg, px + perp.x * 23 - dir.x * 5, py + perp.y * 23 - dir.y * 5, neighborIsDot, neighborColor, 0.85);
+          drawElectronMark(svg, px + perp.x * 23 + dir.x * 5, py + perp.y * 23 + dir.y * 5, neighborIsDot, neighborColor, 0.85);
+          drawElectronMark(svg, px - perp.x * 23 - dir.x * 5, py - perp.y * 23 - dir.y * 5, neighborIsDot, neighborColor, 0.85);
+          drawElectronMark(svg, px - perp.x * 23 + dir.x * 5, py - perp.y * 23 + dir.y * 5, neighborIsDot, neighborColor, 0.85);
+          drawElectronMark(svg, px + dir.x * 24, py + dir.y * 24, neighborIsDot, neighborColor, 0.95);
+        } else {
+          drawElectronMark(svg, px + dir.x * 24, py + dir.y * 24, neighborIsDot, neighborColor, 0.9);
+          drawElectronMark(svg, px + perp.x * 23, py + perp.y * 23, neighborIsDot, neighborColor, 0.9);
+          drawElectronMark(svg, px - perp.x * 23, py - perp.y * 23, neighborIsDot, neighborColor, 0.9);
+        }
+
+        if (t > 0.85) {
+          svg.appendChild(createSVG('line', {
+            x1: px + dir.x * 34, y1: py + dir.y * 34,
+            x2: px + dir.x * 54, y2: py + dir.y * 54,
+            stroke: 'var(--network-color)', 'stroke-width': 2, 'stroke-dasharray': '3,3'
+          }));
+        }
+      });
+
+      if (t > 0.85) {
+        const badge = createSVG('rect', {
+          x: 245, y: 350, width: 330, height: 30, rx: 15,
+          fill: 'rgba(139, 92, 246, 0.14)', stroke: 'var(--network-color)', 'stroke-width': 1.6
+        });
+        svg.appendChild(badge);
+        const lbl = createSVG('text', {
+          x: 410, y: 370, 'text-anchor': 'middle',
+          fill: 'var(--network-color)', 'font-size': '13px', 'font-weight': '700'
+        });
+        lbl.textContent = `♾️ Xarxa covalent contínua (${sub.formulaPlain}) · S'estén en 3D`;
+        svg.appendChild(lbl);
+      }
+    }
+
+    /**
+     * FASES 3 i 4 per a MOLÈCULES DISCRETES AMB 1 ÀTOM CENTRAL
+     */
+    function drawMoleculeAssembly(svg, mol, t, showVacancies) {
+      const cDot = mol.e1IsCentral;
+      const cColor = cDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
+      const pColor = cDot ? 'var(--atom-b-color)' : 'var(--atom-a-color)';
+
+      if (mol.nPeripheral === 1) {
+        const cx = 275 + (368 - 275) * t;
+        const px = 545 + (452 - 545) * t;
+        const cy = 195;
+
+        appendSymbol(svg, mol.central.symbol, cx, cy, 32);
+        appendSymbol(svg, mol.peripheral.symbol, px, cy, 32);
+
+        const yOffsets = mol.bondOrder === 1 ? [0] : (mol.bondOrder === 2 ? [-9, 9] : [-15, 0, 15]);
+        yOffsets.forEach(dy => {
+          const curCShareX = (cx + 30) + (((cx + px) / 2 - 7) - (cx + 30)) * t;
+          const curPShareX = (px - 30) + (((cx + px) / 2 + 7) - (px - 30)) * t;
+          drawElectronMark(svg, curCShareX, cy + dy, cDot, cColor, 1.05);
+          drawElectronMark(svg, curPShareX, cy + dy, !cDot, pColor, 1.05);
+          if (showVacancies) {
+            drawVacancyMark(svg, cx + 46, cy + dy, 1);
+            drawVacancyMark(svg, px - 46, cy + dy, 1);
+          }
+        });
+
+        drawLonePairsAround(svg, cx, cy, mol.centralLonePairs, ['left', 'top', 'bottom'], cDot, cColor, 28, 1.05);
+        drawLonePairsAround(svg, px, cy, mol.periphLonePairs, ['right', 'top', 'bottom'], !cDot, pColor, 28, 1.05);
+
+        if (t > 0.85) drawOctetHighlight(svg, mol.formulaPlain);
+        return;
+      }
+
+      const cx = 410, cy = 195;
+      appendSymbol(svg, mol.central.symbol, cx, cy, 32);
+
+      const allSides = ['left', 'right', 'top', 'bottom'];
+      let periphSides = mol.nPeripheral === 2 ? ['left', 'right']
+                      : mol.nPeripheral === 3 ? ['left', 'right', 'bottom']
+                      : ['left', 'right', 'top', 'bottom'];
+
+      const loneSides = allSides.filter(s => !periphSides.includes(s));
+      drawLonePairsAround(svg, cx, cy, mol.centralLonePairs, loneSides, cDot, cColor, 28, 1.05);
+
+      const pairSep = mol.bondOrder === 1 ? [0] : [-9, 9];
+
+      periphSides.forEach(side => {
+        const dir = getSideVector(side);
+        const dist = 165 + (84 - 165) * t;
+        const px = cx + dir.x * dist;
+        const py = cy + dir.y * dist;
+
+        appendSymbol(svg, mol.peripheral.symbol, px, py, 28);
+
+        pairSep.forEach(perpOffset => {
+          const perpX = -dir.y * perpOffset;
+          const perpY = dir.x * perpOffset;
+
+          const curCX = (cx + dir.x * 29) + ((cx + dir.x * 35) - (cx + dir.x * 29)) * t + perpX;
+          const curCY = (cy + dir.y * 29) + ((cy + dir.y * 35) - (cy + dir.y * 29)) * t + perpY;
+          const curPX = (px - dir.x * 26) + ((cx + dir.x * 49) - (px - dir.x * 26)) * t + perpX;
+          const curPY = (py - dir.y * 26) + ((cy + dir.y * 49) - (py - dir.y * 26)) * t + perpY;
+
+          drawElectronMark(svg, curCX, curCY, cDot, cColor, 1);
+          drawElectronMark(svg, curPX, curPY, !cDot, pColor, 1);
+
+          if (showVacancies) {
+            drawVacancyMark(svg, cx + dir.x * 44 + perpX, cy + dir.y * 44 + perpY, 0.95);
+            drawVacancyMark(svg, px - dir.x * 41 + perpX, py - dir.y * 41 + perpY, 0.95);
+          }
+        });
+
+        const oppSide = oppositeSide(side);
+        drawLonePairsAround(svg, px, py, mol.periphLonePairs, allSides.filter(s => s !== oppSide), !cDot, pColor, 25, 0.95);
+      });
+
+      if (t > 0.85) drawOctetHighlight(svg, mol.formulaPlain);
+    }
+
+    /**
+     * FASE 5: Dos diagrames de Lewis resultants (punts/creus vs guionets)
+     */
+    function drawDualLewisDiagrams(svg, sub) {
+      svg.appendChild(createSVG('line', {
+        x1: 410, y1: 22, x2: 410, y2: 372,
+        stroke: 'var(--border-color)', 'stroke-width': 1.5, 'stroke-dasharray': '5,5'
+      }));
+
+      const tLeft = createSVG('text', {
+        x: 205, y: 30, 'text-anchor': 'middle',
+        fill: 'var(--primary)', 'font-weight': '700', 'font-size': '14.5px'
+      });
+      tLeft.textContent = '1. Format amb punts (•) i creus (×)';
+      svg.appendChild(tLeft);
+
+      const tRight = createSVG('text', {
+        x: 615, y: 30, 'text-anchor': 'middle',
+        fill: 'var(--primary)', 'font-weight': '700', 'font-size': '14.5px'
+      });
+      tRight.textContent = '2. Format desenvolupat (guionets)';
+      svg.appendChild(tRight);
+
+      if (sub.isNetwork) {
+        drawNetworkUnitLewis(svg, 205, 198, sub, 'dots');
+        drawNetworkUnitLewis(svg, 615, 198, sub, 'dashes');
+        const note = createSVG('text', {
+          x: 410, y: 376, 'text-anchor': 'middle',
+          fill: 'var(--network-color)', 'font-size': '12.5px', 'font-weight': '600'
+        });
+        note.textContent = `Unitat estructural repetitiva [ … ]ₙ: els guions exteriors indiquen que la xarxa continua indefinidament.`;
+        svg.appendChild(note);
+      } else {
+        drawFinalMoleculeLewis(svg, 205, 200, sub, 'dots');
+        drawFinalMoleculeLewis(svg, 615, 200, sub, 'dashes');
+        const note = createSVG('text', {
+          x: 410, y: 376, 'text-anchor': 'middle',
+          fill: 'var(--text-muted)', 'font-size': '12.5px'
+        });
+        note.textContent = `Cada guió entre àtoms representa 1 parell d'electrons compartits (1 punt • + 1 creu ×).`;
+        svg.appendChild(note);
+      }
+    }
+
+    function drawNetworkUnitLewis(svg, centerX, centerY, sub, mode) {
+      const cDot = sub.e1IsCentral;
+      const cColor = cDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
+      const pColor = !cDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
+      const bondColor = 'var(--bond-color)';
+
+      const bw = 132, bh = 115;
+      const drawBracket = (bx, dir) => {
+        const path = `M ${bx + dir * 14} ${centerY - bh} L ${bx} ${centerY - bh} L ${bx} ${centerY + bh} L ${bx + dir * 14} ${centerY + bh}`;
+        svg.appendChild(createSVG('path', {
+          d: path, fill: 'none', stroke: 'var(--network-color)', 'stroke-width': 2.5
+        }));
+      };
+      drawBracket(centerX - bw, 1);
+      drawBracket(centerX + bw, -1);
+
+      const nSub = createSVG('text', {
+        x: centerX + bw + 8, y: centerY + bh + 6,
+        fill: 'var(--network-color)', 'font-weight': '800', 'font-size': '16px', 'font-style': 'italic'
+      });
+      nSub.textContent = 'n';
+      svg.appendChild(nSub);
+
+      if (sub.networkKind === 'silica') {
+        appendSymbol(svg, 'Si', centerX, centerY, 28);
+        appendSymbol(svg, 'O', centerX - 72, centerY, 26);
+        appendSymbol(svg, 'O', centerX + 72, centerY, 26);
+
+        [-1, 1].forEach(dirX => {
+          if (mode === 'dots') {
+            drawElectronMark(svg, centerX + dirX * 30, centerY, cDot, cColor, 0.9);
+            drawElectronMark(svg, centerX + dirX * 42, centerY, !cDot, pColor, 0.9);
+          } else {
+            svg.appendChild(createSVG('line', {
+              x1: centerX + dirX * 22, y1: centerY, x2: centerX + dirX * 52, y2: centerY,
+              stroke: bondColor, 'stroke-width': 3.2, 'stroke-linecap': 'round'
+            }));
+          }
+          drawLonePairsAround(svg, centerX + dirX * 72, centerY, 2, ['top', 'bottom'], !cDot, pColor, 22, 0.85);
+          const outX1 = centerX + dirX * 92;
+          const outX2 = centerX + dirX * (bw + 16);
+          if (mode === 'dots') {
+            drawElectronMark(svg, outX1 + dirX * 6, centerY, !cDot, pColor, 0.9);
+          }
+          svg.appendChild(createSVG('line', {
+            x1: outX1 + (mode === 'dots' ? dirX * 14 : 0), y1: centerY,
+            x2: outX2, y2: centerY,
+            stroke: mode === 'dots' ? 'var(--network-color)' : bondColor,
+            'stroke-width': 2.8, 'stroke-dasharray': '4,3'
+          }));
+        });
+
+        [-1, 1].forEach(dirY => {
+          if (mode === 'dots') {
+            drawElectronMark(svg, centerX, centerY + dirY * 28, cDot, cColor, 0.9);
+          }
+          svg.appendChild(createSVG('line', {
+            x1: centerX, y1: centerY + dirY * (mode === 'dots' ? 36 : 22),
+            x2: centerX, y2: centerY + dirY * 76,
+            stroke: mode === 'dots' ? 'var(--network-color)' : bondColor,
+            'stroke-width': 2.8, 'stroke-dasharray': '4,3'
+          }));
+        });
+        return;
+      }
+
+      const symL = sub.central.symbol;
+      const symR = sub.peripheral.symbol;
+      const lx = centerX - 42, rx = centerX + 42;
+
+      appendSymbol(svg, symL, lx, centerY, 28);
+      appendSymbol(svg, symR, rx, centerY, 28);
+
+      if (mode === 'dots') {
+        drawElectronMark(svg, centerX - 6, centerY, cDot, cColor, 0.95);
+        drawElectronMark(svg, centerX + 6, centerY, !cDot, pColor, 0.95);
+      } else {
+        svg.appendChild(createSVG('line', {
+          x1: lx + 20, y1: centerY, x2: rx - 20, y2: centerY,
+          stroke: bondColor, 'stroke-width': 3.2, 'stroke-linecap': 'round'
+        }));
+      }
+
+      const drawOpenBond = (ax, ay, dx, dy, isAtomDot, atomCol) => {
+        if (mode === 'dots') {
+          drawElectronMark(svg, ax + dx * 25, ay + dy * 25, isAtomDot, atomCol, 0.9);
+        }
+        svg.appendChild(createSVG('line', {
+          x1: ax + dx * (mode === 'dots' ? 33 : 20),
+          y1: ay + dy * (mode === 'dots' ? 33 : 20),
+          x2: ax + dx * 62,
+          y2: ay + dy * 62,
+          stroke: mode === 'dots' ? 'var(--network-color)' : bondColor,
+          'stroke-width': 2.6, 'stroke-dasharray': '4,3'
+        }));
+      };
+
+      drawOpenBond(lx, centerY, -1, 0, cDot, cColor);
+      drawOpenBond(lx, centerY, 0, -1, cDot, cColor);
+      drawOpenBond(lx, centerY, 0, 1, cDot, cColor);
+
+      drawOpenBond(rx, centerY, 1, 0, !cDot, pColor);
+      drawOpenBond(rx, centerY, 0, -1, !cDot, pColor);
+      drawOpenBond(rx, centerY, 0, 1, !cDot, pColor);
+    }
+
+    function drawFinalMoleculeLewis(svg, centerX, centerY, mol, mode) {
+      const cDot = mol.e1IsCentral;
+      const cColor = cDot ? 'var(--atom-a-color)' : 'var(--atom-b-color)';
+      const pColor = cDot ? 'var(--atom-b-color)' : 'var(--atom-a-color)';
+      const bondColor = 'var(--bond-color)';
+
+      if (mol.nPeripheral === 1) {
+        const cx = centerX - 42;
+        const px = centerX + 42;
+        const cy = centerY;
+
+        appendSymbol(svg, mol.central.symbol, cx, cy, 30);
+        appendSymbol(svg, mol.peripheral.symbol, px, cy, 30);
+
+        const yOffsets = mol.bondOrder === 1 ? [0] : (mol.bondOrder === 2 ? [-8, 8] : [-14, 0, 14]);
+        yOffsets.forEach(dy => {
+          if (mode === 'dots') {
+            drawElectronMark(svg, centerX - 6, cy + dy, cDot, cColor, 1);
+            drawElectronMark(svg, centerX + 6, cy + dy, !cDot, pColor, 1);
+          } else {
+            svg.appendChild(createSVG('line', {
+              x1: cx + 22, y1: cy + dy, x2: px - 22, y2: cy + dy,
+              stroke: bondColor, 'stroke-width': 3.2, 'stroke-linecap': 'round'
+            }));
+          }
+        });
+
+        drawLonePairsAround(svg, cx, cy, mol.centralLonePairs, ['left', 'top', 'bottom'], cDot, cColor, 26, 0.95);
+        drawLonePairsAround(svg, px, cy, mol.periphLonePairs, ['right', 'top', 'bottom'], !cDot, pColor, 26, 0.95);
+        return;
+      }
+
+      appendSymbol(svg, mol.central.symbol, centerX, centerY, 30);
+
+      const allSides = ['left', 'right', 'top', 'bottom'];
+      let periphSides = mol.nPeripheral === 2 ? ['left', 'right']
+                      : mol.nPeripheral === 3 ? ['left', 'right', 'bottom']
+                      : ['left', 'right', 'top', 'bottom'];
+
+      const loneSides = allSides.filter(s => !periphSides.includes(s));
+      drawLonePairsAround(svg, centerX, centerY, mol.centralLonePairs, loneSides, cDot, cColor, 26, 0.95);
+
+      const endDist = 80;
+      const pairSep = mol.bondOrder === 1 ? [0] : [-8, 8];
+
+      periphSides.forEach(side => {
+        const dir = getSideVector(side);
+        const px = centerX + dir.x * endDist;
+        const py = centerY + dir.y * endDist;
+
+        appendSymbol(svg, mol.peripheral.symbol, px, py, 26);
+
+        pairSep.forEach(perpOffset => {
+          const perpX = -dir.y * perpOffset;
+          const perpY = dir.x * perpOffset;
+
+          if (mode === 'dots') {
+            drawElectronMark(svg, centerX + dir.x * 34 + perpX, centerY + dir.y * 34 + perpY, cDot, cColor, 0.95);
+            drawElectronMark(svg, centerX + dir.x * 46 + perpX, centerY + dir.y * 46 + perpY, !cDot, pColor, 0.95);
+          } else {
+            svg.appendChild(createSVG('line', {
+              x1: centerX + dir.x * 23 + perpX, y1: centerY + dir.y * 23 + perpY,
+              x2: px - dir.x * 21 + perpX, y2: py - dir.y * 21 + perpY,
+              stroke: bondColor, 'stroke-width': 3.2, 'stroke-linecap': 'round'
+            }));
+          }
+        });
+
+        const oppSide = oppositeSide(side);
+        drawLonePairsAround(svg, px, py, mol.periphLonePairs, allSides.filter(s => s !== oppSide), !cDot, pColor, 24, 0.9);
+      });
+    }
+
+    /**
+     * FASE 6: MOTOR 3D INTERACTIU AMB ROTACIÓ LLIURE AMB EL RATOLÍ
+     */
+    function build3DModel(sub) {
+      const atoms = [];
+      const bonds = [];
+
+      const addAtom = (x, y, z, sym, isTypeA, rad) => {
+        atoms.push({ x, y, z, sym, isTypeA, rad });
+        return atoms.length - 1;
+      };
+
+      const cIsA = sub.e1IsCentral;
+
+      if (sub.isNetwork) {
+        if (sub.networkKind === 'diamond' || sub.networkKind === 'zincblende') {
+          const L = 68;
+          const tet = [
+            [1, 1, 1],
+            [1, -1, -1],
+            [-1, 1, -1],
+            [-1, -1, 1]
+          ].map(v => {
+            const m = Math.hypot(v[0], v[1], v[2]);
+            return [v[0] / m * L, v[1] / m * L, v[2] / m * L];
+          });
+
+          const isSame = sub.central.symbol === sub.peripheral.symbol;
+          const sym0 = sub.central.symbol;
+          const sym1 = sub.peripheral.symbol;
+
+          const i0 = addAtom(0, 0, 0, sym0, cIsA, 20);
+
+          tet.forEach((v1, idx1) => {
+            const typeA1 = isSame ? cIsA : !cIsA;
+            const i1 = addAtom(v1[0], v1[1], v1[2], sym1, typeA1, 20);
+            bonds.push({ a: i0, b: i1, order: 1 });
+
+            tet.forEach((v2, idx2) => {
+              if (idx1 === idx2) return;
+              const x2 = v1[0] - v2[0] * 0.92;
+              const y2 = v1[1] - v2[1] * 0.92;
+              const z2 = v1[2] - v2[2] * 0.92;
+              const i2 = addAtom(x2, y2, z2, sym0, cIsA, 17);
+              bonds.push({ a: i1, b: i2, order: 1 });
+            });
+          });
+          return { atoms, bonds };
+        }
+
+        if (sub.networkKind === 'silica') {
+          const L = 66;
+          const tet = [
+            [1, 1, 1],
+            [1, -1, -1],
+            [-1, 1, -1],
+            [-1, -1, 1]
+          ].map(v => {
+            const m = Math.hypot(v[0], v[1], v[2]);
+            return [v[0] / m, v[1] / m, v[2] / m];
+          });
+
+          const si0 = addAtom(0, 0, 0, 'Si', cIsA, 21);
+
+          tet.forEach((u, idx) => {
+            const ox = u[0] * (L * 0.72);
+            const oy = u[1] * (L * 0.72);
+            const oz = u[2] * (L * 0.72);
+            const oIdx = addAtom(ox, oy, oz, 'O', !cIsA, 16);
+            bonds.push({ a: si0, b: oIdx, order: 1 });
+
+            const six = u[0] * (L * 1.48);
+            const siy = u[1] * (L * 1.48);
+            const siz = u[2] * (L * 1.48);
+            const siNext = addAtom(six, siy, siz, 'Si', cIsA, 19);
+            bonds.push({ a: oIdx, b: siNext, order: 1 });
+
+            tet.forEach((u2, idx2) => {
+              if (idx === idx2) return;
+              const o2x = six - u2[0] * (L * 0.56);
+              const o2y = siy - u2[1] * (L * 0.56);
+              const o2z = siz - u2[2] * (L * 0.56);
+              const o2Idx = addAtom(o2x, o2y, o2z, 'O', !cIsA, 13);
+              bonds.push({ a: siNext, b: o2Idx, order: 1 });
+            });
+          });
+          return { atoms, bonds };
+        }
+      }
+
+      const cRad = sub.central.symbol === 'H' ? 22 : 34;
+      const pRad = sub.peripheral.symbol === 'H' ? 20 : 30;
+      const L = 105;
+
+      const cIdx = addAtom(0, 0, 0, sub.central.symbol, cIsA, cRad);
+
+      if (sub.geometryType === 'diatomic') {
+        atoms[cIdx].x = -L / 2;
+        const pIdx = addAtom(L / 2, 0, 0, sub.peripheral.symbol, !cIsA, pRad);
+        bonds.push({ a: cIdx, b: pIdx, order: sub.bondOrder });
+      } else if (sub.geometryType === 'linear-3') {
+        const p1 = addAtom(-L, 0, 0, sub.peripheral.symbol, !cIsA, pRad);
+        const p2 = addAtom(L, 0, 0, sub.peripheral.symbol, !cIsA, pRad);
+        bonds.push({ a: cIdx, b: p1, order: sub.bondOrder });
+        bonds.push({ a: cIdx, b: p2, order: sub.bondOrder });
+      } else if (sub.geometryType === 'bent') {
+        const ang = (52 * Math.PI) / 180;
+        const p1 = addAtom(-L * Math.sin(ang), L * Math.cos(ang), 0, sub.peripheral.symbol, !cIsA, pRad);
+        const p2 = addAtom(L * Math.sin(ang), L * Math.cos(ang), 0, sub.peripheral.symbol, !cIsA, pRad);
+        bonds.push({ a: cIdx, b: p1, order: sub.bondOrder });
+        bonds.push({ a: cIdx, b: p2, order: sub.bondOrder });
+      } else if (sub.geometryType === 'pyramidal') {
+        const h = 42;
+        const rBase = 96;
+        for (let k = 0; k < 3; k++) {
+          const a = (k * 2 * Math.PI) / 3;
+          const p = addAtom(rBase * Math.cos(a), h, rBase * Math.sin(a), sub.peripheral.symbol, !cIsA, pRad);
+          bonds.push({ a: cIdx, b: p, order: sub.bondOrder });
+        }
+      } else if (sub.geometryType === 'tetrahedral') {
+        const tet = [
+          [0, -1, 0],
+          [0.9428, 0.3333, 0],
+          [-0.4714, 0.3333, 0.8165],
+          [-0.4714, 0.3333, -0.8165]
+        ];
+        tet.forEach(v => {
+          const p = addAtom(v[0] * L, v[1] * L, v[2] * L, sub.peripheral.symbol, !cIsA, pRad);
+          bonds.push({ a: cIdx, b: p, order: sub.bondOrder });
+        });
+      }
+
+      return { atoms, bonds };
+    }
+
+    function drawInteractive3DStage(svg, sub) {
+      const defs = createSVG('defs', {});
+      defs.innerHTML = `
+        <radialGradient id="grad-a" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#bae6fd"/>
+          <stop offset="45%" stop-color="#0284c7"/>
+          <stop offset="100%" stop-color="#0369a1"/>
+        </radialGradient>
+        <radialGradient id="grad-b" cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stop-color="#fde68a"/>
+          <stop offset="45%" stop-color="#d97706"/>
+          <stop offset="100%" stop-color="#92400e"/>
+        </radialGradient>
+      `;
+      svg.appendChild(defs);
+
+      const { atoms, bonds } = build3DModel(sub);
+
+      const cosX = Math.cos(state.rotX), sinX = Math.sin(state.rotX);
+      const cosY = Math.cos(state.rotY), sinY = Math.sin(state.rotY);
+      const fov = 420;
+      const centerX = 305, centerY = 195;
+
+      const projAtoms = atoms.map((at, idx) => {
+        const x1 = at.x * cosY + at.z * sinY;
+        const z1 = -at.x * sinY + at.z * cosY;
+        const y2 = at.y * cosX - z1 * sinX;
+        const z2 = at.y * sinX + z1 * cosX;
+
+        const scale = fov / (fov + z2);
+        return {
+          idx,
+          sym: at.sym,
+          isTypeA: at.isTypeA,
+          rad: at.rad * scale,
+          sx: centerX + x1 * scale,
+          sy: centerY + y2 * scale,
+          z: z2,
+          scale
+        };
+      });
+
+      const renderQueue = [];
+
+      bonds.forEach(b => {
+        const pA = projAtoms[b.a];
+        const pB = projAtoms[b.b];
+        renderQueue.push({
+          type: 'bond',
+          z: (pA.z + pB.z) / 2,
+          pA,
+          pB,
+          order: b.order
+        });
+      });
+
+      projAtoms.forEach(p => {
+        renderQueue.push({
+          type: 'atom',
+          z: p.z,
+          p
+        });
+      });
+
+      renderQueue.sort((a, b) => b.z - a.z);
+
+      renderQueue.forEach(item => {
+        if (item.type === 'bond') {
+          const { pA, pB, order } = item;
+          const dx = pB.sx - pA.sx, dy = pB.sy - pA.sy;
+          const len = Math.hypot(dx, dy) || 1;
+          const nx = -dy / len, ny = dx / len;
+          const avgScale = (pA.scale + pB.scale) / 2;
+          const offsets = order === 1 ? [0] : (order === 2 ? [-5 * avgScale, 5 * avgScale] : [-8.5 * avgScale, 0, 8.5 * avgScale]);
+
+          offsets.forEach(off => {
+            svg.appendChild(createSVG('line', {
+              x1: pA.sx + nx * off, y1: pA.sy + ny * off,
+              x2: pB.sx + nx * off, y2: pB.sy + ny * off,
+              stroke: 'var(--text-muted)',
+              'stroke-width': (order === 1 ? 6.5 : 4.2) * avgScale,
+              'stroke-linecap': 'round',
+              opacity: '0.9'
+            }));
+          });
+        } else {
+          const { p } = item;
+          svg.appendChild(createSVG('circle', {
+            cx: p.sx, cy: p.sy, r: p.rad,
+            fill: p.isTypeA ? 'url(#grad-a)' : 'url(#grad-b)',
+            stroke: 'rgba(15, 23, 42, 0.45)',
+            'stroke-width': 1.3 * p.scale
+          }));
+
+          const t = createSVG('text', {
+            x: p.sx, y: p.sy + p.rad * 0.35,
+            'text-anchor': 'middle',
+            fill: '#ffffff',
+            'font-weight': '800',
+            'font-size': `${Math.max(9, p.rad * 0.62)}px`
+          });
+          t.textContent = p.sym;
+          svg.appendChild(t);
+        }
+      });
+
+      const hint = createSVG('text', {
+        x: 305, y: 374, 'text-anchor': 'middle',
+        fill: 'var(--text-muted)', 'font-size': '12.5px', 'font-weight': '600'
+      });
+      hint.textContent = '🖱️ Clica i arrossega amb el ratolí per girar l\'estructura en 3D';
+      svg.appendChild(hint);
+
+      const cardX = 535, cardY = 78, cardW = 250, cardH = 235;
+      svg.appendChild(createSVG('rect', {
+        x: cardX, y: cardY, width: cardW, height: cardH, rx: 12,
+        fill: 'var(--bg-subtle)',
+        stroke: sub.isNetwork ? 'var(--network-color)' : 'var(--primary)',
+        'stroke-width': 1.8
+      }));
+
+      const addCardLine = (y, text, size, weight, color) => {
+        const el = createSVG('text', {
+          x: cardX + cardW / 2, y,
+          'text-anchor': 'middle',
+          fill: color, 'font-size': size, 'font-weight': weight
+        });
+        el.textContent = text;
+        svg.appendChild(el);
+      };
+
+      addCardLine(cardY + 30, sub.isNetwork ? 'XARXA COVALENT ATÒMICA' : 'MOLÈCULA RESULTANT', '11.5px', '700', 'var(--text-muted)');
+      addCardLine(cardY + 70, sub.formulaPlain, '30px', '800', sub.isNetwork ? 'var(--network-color)' : 'var(--primary)');
+      addCardLine(cardY + 110, sub.geometryName, '13.5px', '700', 'var(--text-main)');
+      addCardLine(cardY + 135, `Angle d'enllaç: ${sub.bondAngle}`, '13px', '600', 'var(--text-muted)');
+
+      if (sub.isNetwork) {
+        addCardLine(cardY + 170, 'Sòlid cristal·lí continu', '12.5px', '700', 'var(--network-color)');
+        addCardLine(cardY + 190, 'Sense molècules aïllades', '12px', '500', 'var(--text-muted)');
+        addCardLine(cardY + 210, 'Duresa i punt de fusió molt alts', '11.5px', '500', 'var(--text-muted)');
+      } else {
+        addCardLine(cardY + 170, 'Molècula covalent discreta', '12.5px', '700', 'var(--bond-color)');
+        addCardLine(cardY + 190, 'No forma xarxa cristal·lina', '12px', '500', 'var(--text-muted)');
+        addCardLine(cardY + 210, 'Punts de fusió i ebullició baixos', '11.5px', '500', 'var(--text-muted)');
+      }
+    }
+
+    function appendSymbol(svg, symbol, x, y, fontSize) {
+      const txt = createSVG('text', {
+        x, y: y + fontSize * 0.34,
+        'text-anchor': 'middle',
+        fill: 'var(--text-main)',
+        'font-weight': '800',
+        'font-size': `${fontSize}px`
+      });
+      txt.textContent = symbol;
+      svg.appendChild(txt);
+    }
+
+    function drawLonePairsAround(svg, cx, cy, numPairs, availableSides, isDot, color, dist, scale) {
+      const sep = 6.2 * scale;
+      for (let i = 0; i < numPairs; i++) {
+        const side = availableSides[i % availableSides.length];
+        if (side === 'top') {
+          drawElectronMark(svg, cx - sep, cy - dist, isDot, color, scale);
+          drawElectronMark(svg, cx + sep, cy - dist, isDot, color, scale);
+        } else if (side === 'bottom') {
+          drawElectronMark(svg, cx - sep, cy + dist, isDot, color, scale);
+          drawElectronMark(svg, cx + sep, cy + dist, isDot, color, scale);
+        } else if (side === 'left') {
+          drawElectronMark(svg, cx - dist, cy - sep, isDot, color, scale);
+          drawElectronMark(svg, cx - dist, cy + sep, isDot, color, scale);
+        } else if (side === 'right') {
+          drawElectronMark(svg, cx + dist, cy - sep, isDot, color, scale);
+          drawElectronMark(svg, cx + dist, cy + sep, isDot, color, scale);
+        }
+      }
+    }
+
+    function drawOctetHighlight(svg, formulaPlain) {
+      const badge = createSVG('rect', {
+        x: 315, y: 344, width: 190, height: 32, rx: 16,
+        fill: 'rgba(16, 185, 129, 0.14)',
+        stroke: 'var(--bond-color)',
+        'stroke-width': 1.6
+      });
+      svg.appendChild(badge);
+      const lbl = createSVG('text', {
+        x: 410, y: 365, 'text-anchor': 'middle',
+        fill: 'var(--bond-color)', 'font-size': '13.5px', 'font-weight': '700'
+      });
+      lbl.textContent = `✓ Octet completat (${formulaPlain})`;
+      svg.appendChild(lbl);
+    }
+
+    function getSideVector(side) {
+      if (side === 'left') return { x: -1, y: 0 };
+      if (side === 'right') return { x: 1, y: 0 };
+      if (side === 'top') return { x: 0, y: -1 };
+      return { x: 0, y: 1 };
+    }
+
+    function oppositeSide(side) {
+      if (side === 'left') return 'right';
+      if (side === 'right') return 'left';
+      if (side === 'top') return 'bottom';
+      return 'top';
+    }
+
+    function createSVG(tag, attrs) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        el.setAttribute(k, v);
+      }
+      return el;
+    }
+  </script>
+</body>
+</html>
